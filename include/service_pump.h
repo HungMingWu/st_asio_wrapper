@@ -270,7 +270,12 @@ protected:
 #endif
 
 	DO_SOMETHING_TO_ALL_MUTEX(service_can, service_can_mutex)
-	DO_SOMETHING_TO_ONE_MUTEX(service_can, service_can_mutex)
+	template <typename _Predicate>
+	void do_something_to_one(const _Predicate& __pred)
+	{
+		boost::lock_guard<boost::mutex> lock(service_can_mutex);
+		std::any_of(service_can.begin(), service_can.end(), __pred);
+	}
 
 private:
 	void add(object_type i_service_)

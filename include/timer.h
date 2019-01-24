@@ -137,7 +137,12 @@ public:
 	}
 
 	DO_SOMETHING_TO_ALL_MUTEX(timer_can, timer_can_mutex)
-	DO_SOMETHING_TO_ONE_MUTEX(timer_can, timer_can_mutex)
+	template<typename _Predicate>
+	void do_something_to_one(const _Predicate& __pred)
+	{
+		boost::lock_guard<boost::mutex> lock(timer_can_mutex);
+		std::any_of(timer_can.begin(), timer_can.end(), __pred);
+	}
 
 protected:
 	bool start_timer(timer_info& ti, unsigned interval_ms)
