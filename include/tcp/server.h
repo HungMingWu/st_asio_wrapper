@@ -148,7 +148,7 @@ protected:
 #endif
 		if (ec) {unified_out::error_out("listen failed."); return false;}
 
-		st_asio_wrapper::do_something_to_all(sockets, boost::bind(&server_base::do_async_accept, this, _1));
+		std::for_each(sockets.begin(), sockets.end(), boost::bind(&server_base::do_async_accept, this, _1));
 		ST_THIS start();
 
 		return true;

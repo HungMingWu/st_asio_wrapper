@@ -113,7 +113,7 @@ protected:
 		//1. we can not use safe_send_msg as i said many times, we should not block service threads.
 		//2. if we use true can_overflow to call send_msg, then buffer usage will be out of control, we should not take this risk.
 
-		st_asio_wrapper::do_something_to_all(msg_can, boost::bind((bool (echo_socket::*)(out_msg_ctype&, bool)) &echo_socket::send_msg, this, _1, true));
+		std::for_each(msg_can.begin(), msg_can.end(), boost::bind((bool (echo_socket::*)(out_msg_ctype&, bool)) &echo_socket::send_msg, this, _1, true));
 		auto re = msg_can.size();
 		msg_can.clear();
 
@@ -140,7 +140,7 @@ protected:
 		tmp_can.splice(tmp_can.end(), msg_can, begin_iter, end_iter); //the rest messages will be dispatched via the next on_msg_handle
 		msg_can.unlock();
 
-		st_asio_wrapper::do_something_to_all(tmp_can, boost::bind((bool (echo_socket::*)(out_msg_ctype&, bool)) &echo_socket::send_msg, this, _1, true));
+		std::for_each(tmp_can.begin(), tmp_can.end(), boost::bind((bool (echo_socket::*)(out_msg_ctype&, bool)) &echo_socket::send_msg, this, _1, true));
 		return tmp_can.size();
 	}
 #else

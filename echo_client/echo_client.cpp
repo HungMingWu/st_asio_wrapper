@@ -112,7 +112,7 @@ protected:
 	//do not hold msg_can for further using, return from on_msg as quickly as possible
 	virtual size_t on_msg(boost::container::list<out_msg_type>& msg_can)
 	{
-		st_asio_wrapper::do_something_to_all(msg_can, boost::bind(&echo_socket::handle_msg, this, _1));
+		std::for_each(msg_can.begin(), msg_can.end(), boost::bind(&echo_socket::handle_msg, this, _1));
 		auto re = msg_can.size();
 		msg_can.clear(); //if we left behind some messages in msg_can, they will be dispatched via on_msg_handle asynchronously, which means it's
 		//possible that on_msg_handle be invoked concurrently with the next on_msg (new messages arrived) and then disorder messages.
@@ -130,7 +130,7 @@ protected:
 		out_container_type tmp_can;
 		msg_can.swap(tmp_can); //must be thread safe
 
-		st_asio_wrapper::do_something_to_all(tmp_can, boost::bind(&echo_socket::handle_msg, this, _1));
+		std::for_each(tmp_can.begin(), tmp_can.end(), boost::bind(&echo_socket::handle_msg, this, _1));
 		return tmp_can.size();
 	}
 #else
@@ -297,7 +297,7 @@ void thread_runtine(boost::container::list<echo_client::object_type>& link_group
 	for (size_t i = 0; i < msg_num; ++i)
 	{
 		memcpy(buff, &i, sizeof(size_t)); //seq
-		st_asio_wrapper::do_something_to_all(link_group, boost::bind((bool (echo_socket::*)(const char*, size_t, bool)) &echo_socket::safe_send_msg, _1, buff, msg_len, false));
+		std::for_each(link_group.begin(), link_group.end(), boost::bind((bool (echo_socket::*)(const char*, size_t, bool)) &echo_socket::safe_send_msg, _1, buff, msg_len, false));
 		//can_overflow is false, it's important
 	}
 	delete[] buff;

@@ -56,7 +56,7 @@ protected:
 	//do not hold msg_can for further using, access msg_can and return from on_msg as quickly as possible
 	virtual size_t on_msg(boost::container::list<out_msg_type>& msg_can)
 	{
-		st_asio_wrapper::do_something_to_all(msg_can, boost::bind(&echo_socket::handle_msg, this, _1));
+		std::for_each(msg_can.begin(), msg_can.end(), boost::bind(&echo_socket::handle_msg, this, _1));
 		auto re = msg_can.size();
 		msg_can.clear(); //if we left behind some messages in msg_can, they will be dispatched via on_msg_handle asynchronously, which means it's
 		//possible that on_msg_handle be invoked concurrently with the next on_msg (new messages arrived) and then disorder messages.

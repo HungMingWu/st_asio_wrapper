@@ -443,9 +443,6 @@ void do_something_to_all(_Can& __can, _Mutex& __mutex, const _Predicate& __pred)
 	for(BOOST_AUTO(iter, __can.begin()); iter != __can.end(); ++iter) __pred(*iter);
 }
 
-template<typename _Can, typename _Predicate>
-void do_something_to_all(_Can& __can, const _Predicate& __pred) {for(BOOST_AUTO(iter, __can.begin()); iter != __can.end(); ++iter) __pred(*iter);}
-
 template<typename _Can, typename _Mutex, typename _Predicate>
 void do_something_to_one(_Can& __can, _Mutex& __mutex, const _Predicate& __pred)
 {
