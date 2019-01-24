@@ -1,29 +1,31 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "echo_server", "echo_server\echo_server.vcproj", "{63C290EB-7BCE-416C-BCD1-FABE76B543A7}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.106
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "echo_server", "echo_server\echo_server.vcxproj", "{63C290EB-7BCE-416C-BCD1-FABE76B543A7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "client\client.vcproj", "{88097F72-F14C-4144-9832-22D33A1946CA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "client\client.vcxproj", "{88097F72-F14C-4144-9832-22D33A1946CA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "echo_client", "echo_client\echo_client.vcproj", "{3F7C67A4-0DC1-4CEA-B87E-B158146A64D1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "echo_client", "echo_client\echo_client.vcxproj", "{3F7C67A4-0DC1-4CEA-B87E-B158146A64D1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "file_server", "file_server\file_server.vcproj", "{2C167A90-0B9D-4077-B14F-D1C8103C6E6F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "file_server", "file_server\file_server.vcxproj", "{2C167A90-0B9D-4077-B14F-D1C8103C6E6F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "file_client", "file_client\file_client.vcproj", "{82D50815-A0A7-4B5D-A06A-B36318141321}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "file_client", "file_client\file_client.vcxproj", "{82D50815-A0A7-4B5D-A06A-B36318141321}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "udp_test", "udp_test\udp_test.vcproj", "{49CB1FE2-FFC4-4650-B4CC-BFDFD5929E42}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "udp_test", "udp_test\udp_test.vcxproj", "{49CB1FE2-FFC4-4650-B4CC-BFDFD5929E42}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pingpong_server", "pingpong_server\pingpong_server.vcproj", "{C2951002-BC5C-4D03-BFFE-976BB082BE0C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pingpong_server", "pingpong_server\pingpong_server.vcxproj", "{C2951002-BC5C-4D03-BFFE-976BB082BE0C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pingpong_client", "pingpong_client\pingpong_client.vcproj", "{206E3ACC-8444-471D-9488-4F0AF24F97C4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pingpong_client", "pingpong_client\pingpong_client.vcxproj", "{206E3ACC-8444-471D-9488-4F0AF24F97C4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ssl_test", "ssl_test\ssl_test.vcproj", "{88097F72-F14C-4144-9832-22D33A1946CB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ssl_test", "ssl_test\ssl_test.vcxproj", "{88097F72-F14C-4144-9832-22D33A1946CB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "concurrent_server", "concurrent_server\concurrent_server.vcproj", "{EDCF2EE4-C212-4B2C-B535-528838F4816C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "concurrent_server", "concurrent_server\concurrent_server.vcxproj", "{EDCF2EE4-C212-4B2C-B535-528838F4816C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "concurrent_client", "concurrent_client\concurrent_client.vcproj", "{56B85EA8-2114-4EEE-8077-BC910DF06D6E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "concurrent_client", "concurrent_client\concurrent_client.vcxproj", "{56B85EA8-2114-4EEE-8077-BC910DF06D6E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_management", "socket_management\socket_management.vcproj", "{63C290EB-7BCE-416C-BCD1-FABE76B543A8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket_management", "socket_management\socket_management.vcxproj", "{63C290EB-7BCE-416C-BCD1-FABE76B543A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -132,5 +134,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {577B8E0B-A73F-4D80-BEDF-6E8D63AE8294}
 	EndGlobalSection
 EndGlobal
