@@ -41,7 +41,7 @@ public:
 
 	bool add_link(const std::string& name)
 	{
-		BOOST_AUTO(socket_ptr, create_object());
+		auto socket_ptr = create_object();
 		assert(socket_ptr);
 
 		if (::add_link(name, socket_ptr->id()))
@@ -61,13 +61,13 @@ public:
 
 	bool del_link(const std::string& name)
 	{
-		BOOST_AUTO(socket_ptr, find(find_and_del_link(name)));
+		auto socket_ptr = find(find_and_del_link(name));
 		return socket_ptr ? (socket_ptr->force_shutdown(false), true) : false;
 	}
 
 	bool send_msg(const std::string& name, const std::string& msg)
 	{
-		BOOST_AUTO(socket_ptr, find(find_link(name)));
+		auto socket_ptr = find(find_link(name));
 		return socket_ptr ?  socket_ptr->send_msg(msg) : false;
 	}
 };

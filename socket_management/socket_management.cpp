@@ -45,7 +45,7 @@ bool del_link(const std::string& name)
 boost::uint_fast64_t find_link(const std::string& name)
 {
 	boost::lock_guard<boost::mutex> lock(link_map_mutex);
-	BOOST_AUTO(iter, link_map.find(name));
+	auto iter = link_map.find(name);
 	return iter != link_map.end() ? iter->second : -1;
 }
 
@@ -54,7 +54,7 @@ boost::uint_fast64_t find_and_del_link(const std::string& name)
 	boost::uint_fast64_t id = -1;
 
 	boost::lock_guard<boost::mutex> lock(link_map_mutex);
-	BOOST_AUTO(iter, link_map.find(name));
+	auto iter = link_map.find(name);
 	if (iter != link_map.end())
 	{
 		id = iter->second;
@@ -83,7 +83,7 @@ int main(int argc, const char* argv[])
 		{
 			boost::char_separator<char> sep(" \t");
 			boost::tokenizer<boost::char_separator<char> > tok(str, sep);
-			BOOST_AUTO(iter, tok.begin());
+			auto iter = tok.begin();
 			if (iter == tok.end())
 				continue;
 

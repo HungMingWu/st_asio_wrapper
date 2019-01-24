@@ -97,7 +97,7 @@ public:
 	bool send_msg(const std::string& msg) {return send_msg(msg, port, ip);}
 	bool send_msg(const std::string& msg, unsigned short port, const std::string& ip)
 	{
-		BOOST_AUTO(socket_ptr, add_socket(port, ip));
+		auto socket_ptr = add_socket(port, ip);
 		return socket_ptr ? socket_ptr->set_controller(this), socket_ptr->send_msg(msg) : false;
 	}
 
@@ -118,7 +118,7 @@ void sync_recv_thread(single_client& client)
 		re = client.sync_recv_msg(msg_can, 50); //st_asio_wrapper will not maintain messages in msg_can anymore after sync_recv_msg return, please note.
 		if (SUCCESS == re)
 		{
-			for (BOOST_AUTO(iter, msg_can.begin()); iter != msg_can.end(); ++iter)
+			for (auto iter = msg_can.begin(); iter != msg_can.end(); ++iter)
 				printf("sync recv(" ST_ASIO_SF ") : %s\n", iter->size(), iter->data());
 			msg_can.clear(); //sync_recv_msg just append new message(s) to msg_can, please note.
 		}

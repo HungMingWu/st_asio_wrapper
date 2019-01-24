@@ -60,7 +60,7 @@ using namespace st_asio_wrapper::ext::tcp;
 //under the default behavior, each tcp::socket has their own packer, and cause memory waste
 //at here, we make each echo_socket use the same global packer for memory saving
 //notice: do not do this for unpacker, because unpacker has member variables and can't share each other
-BOOST_AUTO(global_packer, boost::make_shared<ST_ASIO_DEFAULT_PACKER>());
+auto global_packer = boost::make_shared<ST_ASIO_DEFAULT_PACKER>();
 
 //demonstrate how to control the type of tcp::server_socket_base::server from template parameter
 class i_echo_server : public i_server
@@ -114,7 +114,7 @@ protected:
 		//2. if we use true can_overflow to call send_msg, then buffer usage will be out of control, we should not take this risk.
 
 		st_asio_wrapper::do_something_to_all(msg_can, boost::bind((bool (echo_socket::*)(out_msg_ctype&, bool)) &echo_socket::send_msg, this, _1, true));
-		BOOST_AUTO(re, msg_can.size());
+		auto re = msg_can.size();
 		msg_can.clear();
 
 		return re;
@@ -134,9 +134,9 @@ protected:
 		//these code can be compiled because we used list as the container of the message queue, see macro ST_ASIO_OUTPUT_CONTAINER for more details
 		//to consume all messages in msg_can, see echo_client
 		msg_can.lock();
-		BOOST_AUTO(begin_iter, msg_can.begin());
+		auto begin_iter = msg_can.begin();
 		//don't be too greedy, here is in a service thread, we should not block this thread for a long time
-		BOOST_AUTO(end_iter, msg_can.size() > 10 ? boost::next(begin_iter, 10) : msg_can.end());
+		auto end_iter = msg_can.size() > 10 ? boost::next(begin_iter, 10) : msg_can.end();
 		tmp_can.splice(tmp_can.end(), msg_can, begin_iter, end_iter); //the rest messages will be dispatched via the next on_msg_handle
 		msg_can.unlock();
 

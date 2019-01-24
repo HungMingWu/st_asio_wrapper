@@ -113,7 +113,7 @@ protected:
 	virtual size_t on_msg(boost::container::list<out_msg_type>& msg_can)
 	{
 		st_asio_wrapper::do_something_to_all(msg_can, boost::bind(&echo_socket::handle_msg, this, _1));
-		BOOST_AUTO(re, msg_can.size());
+		auto re = msg_can.size();
 		msg_can.clear(); //if we left behind some messages in msg_can, they will be dispatched via on_msg_handle asynchronously, which means it's
 		//possible that on_msg_handle be invoked concurrently with the next on_msg (new messages arrived) and then disorder messages.
 		//here we always consumed all messages, so we can use sync message dispatching, otherwise, we should not use sync message dispatching
@@ -343,7 +343,7 @@ void send_msg_concurrently(echo_client& client, size_t send_thread_num, size_t m
 
 	boost::timer::cpu_timer begin_time;
 	boost::thread_group threads;
-	for (BOOST_AUTO(iter, link_groups.begin()); iter != link_groups.end(); ++iter)
+	for (auto iter = link_groups.begin(); iter != link_groups.end(); ++iter)
 		threads.create_thread(boost::bind(&thread_runtine, boost::ref(*iter), msg_num, msg_len, msg_fill));
 
 	unsigned percent = 0;
@@ -419,7 +419,7 @@ int main(int argc, const char* argv[])
 	unsigned short port = argc > 3 ? atoi(argv[3]) : ST_ASIO_SERVER_PORT;
 
 	//method #1, create and add clients manually.
-	BOOST_AUTO(socket_ptr, client.create_object());
+	auto socket_ptr = client.create_object();
 	//socket_ptr->set_server_addr(port, ip); //we don't have to set server address at here, the following do_something_to_all will do it for us
 	//some other initializations according to your business
 	client.add_socket(socket_ptr, false);
@@ -512,7 +512,7 @@ int main(int argc, const char* argv[])
 
 			boost::char_separator<char> sep(" \t");
 			boost::tokenizer<boost::char_separator<char> > parameters(str, sep);
-			BOOST_AUTO(iter, parameters.begin());
+			auto iter = parameters.begin();
 			if (iter != parameters.end()) msg_num = std::max((size_t) atoi(iter++->data()), (size_t) 1);
 
 #if 0 == PACKER_UNPACKER_TYPE || 1 == PACKER_UNPACKER_TYPE

@@ -108,7 +108,7 @@ private:
 		{
 			assert(msg.empty());
 
-			BOOST_AUTO(unp, boost::dynamic_pointer_cast<data_unpacker>(unpacker()));
+			auto unp = boost::dynamic_pointer_cast<data_unpacker>(unpacker());
 			if (NULL == unp || unp->is_finished())
 				trans_end();
 

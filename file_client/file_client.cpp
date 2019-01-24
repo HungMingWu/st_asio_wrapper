@@ -88,7 +88,7 @@ int main(int argc, const char* argv[])
 			boost::tokenizer<boost::char_separator<char> > tok(str, sep);
 
 			boost::container::list<std::string> file_list;
-			for (BOOST_AUTO(iter, tok.begin()); iter != tok.end(); ++iter)
+			for (auto iter = tok.begin(); iter != tok.end(); ++iter)
 				file_list.push_back(*iter);
 
 			client.get_file(file_list);
