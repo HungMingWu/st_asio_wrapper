@@ -571,17 +571,6 @@
 	#else
 		#define ST_ASIO_LLF "%llu" //format used to print 'uint_fast64_t'
 	#endif
-	#ifdef __clang__
-		#if __clang_major__ > 3 || __clang_major__ == 3 && __clang_minor__ >= 1
-			#warning Your compiler is Clang 3.1 or higher, you can use ascs to gain some performance improvement.
-		#endif
-	#elif __GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 6
-		#warning Your compiler is GCC 4.6 or higher, you can use ascs to gain some performance improvement.
-	#endif
-
-	#if defined(__GXX_EXPERIMENTAL_CXX0X__) || defined(__cplusplus) && __cplusplus >= 201103L
-		#warning st_asio_wrapper does not need any c++11 features.
-	#endif
 #else
 	#error st_asio_wrapper only support Visual C++, GCC and Clang.
 #endif
