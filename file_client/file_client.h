@@ -94,7 +94,7 @@ private:
 			file = NULL;
 		}
 
-		unpacker(boost::make_shared<ST_ASIO_DEFAULT_UNPACKER>());
+		unpacker(std::make_shared<ST_ASIO_DEFAULT_UNPACKER>());
 		state = TRANS_IDLE;
 	}
 	void trans_end() {clear();}
@@ -105,7 +105,7 @@ private:
 		{
 			assert(msg.empty());
 
-			auto unp = boost::dynamic_pointer_cast<data_unpacker>(unpacker());
+			auto unp = std::dynamic_pointer_cast<data_unpacker>(unpacker());
 			if (NULL == unp || unp->is_finished())
 				trans_end();
 
@@ -151,7 +151,7 @@ private:
 						send_msg(buffer, sizeof(buffer), true);
 
 						fseeko(file, offset, SEEK_SET);
-						unpacker(boost::make_shared<data_unpacker>(file, my_length));
+						unpacker(std::make_shared<data_unpacker>(file, my_length));
 					}
 					else
 						trans_end();

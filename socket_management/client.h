@@ -11,8 +11,8 @@ class my_client_socket : public client_socket
 public:
 	my_client_socket(boost::asio::io_context& io_context_) : client_socket(io_context_)
 	{
-		boost::dynamic_pointer_cast<prefix_suffix_packer>(packer())->prefix_suffix("", "\n");
-		boost::dynamic_pointer_cast<prefix_suffix_unpacker>(unpacker())->prefix_suffix("", "\n");
+		std::dynamic_pointer_cast<prefix_suffix_packer>(packer())->prefix_suffix("", "\n");
+		std::dynamic_pointer_cast<prefix_suffix_unpacker>(unpacker())->prefix_suffix("", "\n");
 	}
 
 	void name(const std::string& name_) {_name = name_;}

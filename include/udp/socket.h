@@ -33,7 +33,7 @@ private:
 	typedef socket<Socket, Packer, in_msg_type, out_msg_type, InQueue, InContainer, OutQueue, OutContainer> super;
 
 public:
-	socket_base(boost::asio::io_context& io_context_) : super(io_context_), has_bound(false), unpacker_(boost::make_shared<Unpacker>()), strand(io_context_) {}
+	socket_base(boost::asio::io_context& io_context_) : super(io_context_), has_bound(false), unpacker_(std::make_shared<Unpacker>()), strand(io_context_) {}
 
 	virtual bool is_ready() {return has_bound;}
 	virtual void send_heartbeat()
@@ -87,11 +87,11 @@ public:
 	//get or change the unpacker at runtime
 	//changing unpacker at runtime is not thread-safe, this operation can only be done in on_msg(), reset() or constructor, please pay special attention
 	//we can resolve this defect via mutex, but i think it's not worth, because this feature is not frequently used
-	boost::shared_ptr<i_unpacker<typename Unpacker::msg_type> > unpacker() {return unpacker_;}
-	boost::shared_ptr<const i_unpacker<typename Unpacker::msg_type> > unpacker() const {return unpacker_;}
+	std::shared_ptr<i_unpacker<typename Unpacker::msg_type> > unpacker() {return unpacker_;}
+	std::shared_ptr<const i_unpacker<typename Unpacker::msg_type> > unpacker() const {return unpacker_;}
 #ifdef ST_ASIO_PASSIVE_RECV
 	//changing unpacker must before calling st_asio_wrapper::socket::recv_msg, and define ST_ASIO_PASSIVE_RECV macro.
-	void unpacker(const boost::shared_ptr<i_unpacker<typename Unpacker::msg_type> >& _unpacker_) {unpacker_ = _unpacker_;}
+	void unpacker(const std::shared_ptr<i_unpacker<typename Unpacker::msg_type> >& _unpacker_) {unpacker_ = _unpacker_;}
 	virtual void recv_msg() {if (!reading && is_ready()) ST_THIS dispatch_strand(strand, boost::bind(&socket_base::do_recv_msg, this));}
 #endif
 
@@ -342,7 +342,7 @@ private:
 
 	bool has_bound;
 	typename super::in_msg last_send_msg;
-	boost::shared_ptr<i_unpacker<typename Unpacker::msg_type> > unpacker_;
+	std::shared_ptr<i_unpacker<typename Unpacker::msg_type> > unpacker_;
 	boost::asio::ip::udp::endpoint local_addr;
 	boost::asio::ip::udp::endpoint temp_addr; //used when receiving messages
 	boost::asio::ip::udp::endpoint peer_addr;

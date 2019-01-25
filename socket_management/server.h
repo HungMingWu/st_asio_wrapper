@@ -6,8 +6,8 @@ class my_server_socket : public server_socket
 public:
 	my_server_socket(i_server& server_) : server_socket(server_)
 	{
-		boost::dynamic_pointer_cast<prefix_suffix_packer>(packer())->prefix_suffix("", "\n");
-		boost::dynamic_pointer_cast<prefix_suffix_unpacker>(unpacker())->prefix_suffix("", "\n");
+		std::dynamic_pointer_cast<prefix_suffix_packer>(packer())->prefix_suffix("", "\n");
+		std::dynamic_pointer_cast<prefix_suffix_unpacker>(unpacker())->prefix_suffix("", "\n");
 	}
 
 protected:
