@@ -155,8 +155,10 @@ public:
 	void stop_all_timer() {do_something_to_all(boost::bind((void (timer::*) (timer_info&)) &timer::stop_timer, this, _1));}
 	void stop_all_timer(tid excepted_id)
 	{
-		do_something_to_all(boost::lambda::if_then(excepted_id != boost::lambda::bind(&timer_info::id, boost::lambda::_1),
-			boost::lambda::bind((void (timer::*) (timer_info&)) &timer::stop_timer, this, boost::lambda::_1)));
+		do_something_to_all([this, excepted_id](timer_info &obj) {
+			if (excepted_id != obj.id)
+				stop_timer(obj);
+		});
 	}
 
 	template <typename _Predicate>

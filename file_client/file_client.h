@@ -192,7 +192,10 @@ public:
 	bool is_end()
 	{
 		size_t idle_num = 0;
-		do_something_to_all(boost::lambda::if_then(boost::lambda::bind(&file_socket::is_idle, *boost::lambda::_1), ++boost::lambda::var(idle_num)));
+		do_something_to_all([&idle_num](const auto& socket) {
+			if (socket->is_idle())
+				idle_num++;
+		});
 		return idle_num == size();
 	}
 
@@ -216,8 +219,11 @@ private:
 			printf("transfer %s begin.\n", file_name.data());
 			if (find(0)->get_file(file_name))
 			{
-				do_something_to_all(boost::lambda::if_then(0U != boost::lambda::bind((boost::uint_fast64_t (file_socket::*)() const) &file_socket::id, *boost::lambda::_1),
-					boost::lambda::bind(&file_socket::get_file, *boost::lambda::_1, file_name)));
+				do_something_to_all([&file_name](const auto &socket) {
+					if (0U != socket->id())
+						socket->get_file(file_name);
+				});
+		
 				begin_time.start();
 				set_timer(UPDATE_PROGRESS, 50, boost::bind(&file_client::update_progress_handler, this, _1, -1));
 

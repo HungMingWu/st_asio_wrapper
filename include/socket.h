@@ -140,8 +140,9 @@ public:
 		assert(interval > 0 && max_absence > 0);
 
 		if (!is_timer(TIMER_HEARTBEAT_CHECK))
-			set_timer(TIMER_HEARTBEAT_CHECK, interval * 1000, boost::lambda::if_then_else_return(boost::lambda::bind(&socket::check_heartbeat, this,
-				interval, max_absence), true, false));
+			set_timer(TIMER_HEARTBEAT_CHECK, interval * 1000, [this, interval, max_absence](auto tid) {
+				return check_heartbeat(interval, max_absence);
+			}); 
 	}
 
 	//interval's unit is second
@@ -370,7 +371,11 @@ protected:
 			sr_status = RESPONDED;
 			sync_recv_cv.notify_one();
 
-			sync_recv_cv.wait(lock, boost::lambda::if_then_else_return(!boost::lambda::var(started_) || RESPONDED != boost::lambda::var(sr_status), true, false));
+			sync_recv_cv.wait(lock, [this]() {
+				if (!started_ || RESPONDED != sr_status)
+					return true;
+				return false;
+			});
 			if (RESPONDED == sr_status) //eliminate race condition on temp_msg_can with sync_recv_msg
 				return false;
 			else if (temp_msg_can.empty())
@@ -468,7 +473,11 @@ private:
 #ifdef ST_ASIO_SYNC_RECV
 	sync_call_result sync_recv_waiting(std::unique_lock<std::mutex>& lock, unsigned duration)
 	{
-		std::function<bool ()> pred = boost::lambda::if_then_else_return(!boost::lambda::var(started_) || REQUESTED != boost::lambda::var(sr_status), true, false);
+		std::function<bool()> pred = [this]() {
+			if (!started_ || REQUESTED != sr_status)
+				return true;
+			return false;
+		};
 		if (0 == duration)
 			sync_recv_cv.wait(lock, pred);
 		else if (!sync_recv_cv.wait_for(lock, std::chrono::milliseconds(duration), pred))
@@ -508,7 +517,9 @@ private:
 		if (check_receiving(false))
 			return true;
 
-		set_timer(TIMER_CHECK_RECV, msg_resuming_interval_, boost::lambda::if_then_else_return(boost::lambda::bind(&socket::check_receiving, this, true), false, true));
+		set_timer(TIMER_CHECK_RECV, msg_resuming_interval_, [this](auto tid) {
+			return !check_receiving(true);
+		});
 #endif
 		return false;
 	}

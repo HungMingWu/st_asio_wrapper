@@ -181,8 +181,9 @@ public:
 	boost::uint64_t get_recv_bytes()
 	{
 		boost::uint64_t total_recv_bytes = 0;
-		do_something_to_all(total_recv_bytes += *boost::lambda::_1);
-//		do_something_to_all(total_recv_bytes += boost::lambda::bind(&echo_socket::get_recv_bytes, *boost::lambda::_1));
+		do_something_to_all([&total_recv_bytes](const auto &adder) {
+			total_recv_bytes += *adder;
+		});
 
 		return total_recv_bytes;
 	}
@@ -195,6 +196,27 @@ public:
 		static int index = -1;
 		++index;
 
+		auto graceful_shutdown_maker = [&n](bool reconnect, bool sync) -> std::function<void(const std::shared_ptr<echo_socket>&)> {
+			if (n-- > 0) {
+				return [reconnect, sync](const std::shared_ptr<echo_socket>& socket) {
+					return socket->graceful_shutdown(reconnect, sync);
+				};
+			}
+			else {
+				return {};
+			}
+		};
+
+		auto force_shutdown_maker = [&n](bool reconnect) -> std::function<void(const std::shared_ptr<echo_socket>&)> {
+			if (n-- > 0) {
+				return [reconnect](const std::shared_ptr<echo_socket>& socket) {
+					return socket->force_shutdown(reconnect);
+				};
+			}
+			else {
+				return {};
+			}
+		};
 		switch (index % 6)
 		{
 #ifdef ST_ASIO_CLEAR_OBJECT_INTERVAL
@@ -202,9 +224,9 @@ public:
 			//notice: these methods need to define ST_ASIO_CLEAR_OBJECT_INTERVAL macro, because it just shut down the socket,
 			//not really remove them from object pool, this will cause echo_client still send data via them, and wait responses from them.
 			//for this scenario, the smaller ST_ASIO_CLEAR_OBJECT_INTERVAL macro is, the better experience you will get, so set it to 1 second.
-		case 0: do_something_to_all(boost::lambda::if_then(boost::lambda::var(n)-- > 0, boost::lambda::bind(&echo_socket::graceful_shutdown, *boost::lambda::_1, false, true)));	break;
-		case 1: do_something_to_all(boost::lambda::if_then(boost::lambda::var(n)-- > 0, boost::lambda::bind(&echo_socket::graceful_shutdown, *boost::lambda::_1, false, false)));	break;
-		case 2: do_something_to_all(boost::lambda::if_then(boost::lambda::var(n)-- > 0, boost::lambda::bind(&echo_socket::force_shutdown, *boost::lambda::_1, false)));				break;
+		case 0: do_something_to_all(graceful_shutdown_maker(false, true));	break;
+		case 1: do_something_to_all(graceful_shutdown_maker(false, false));	break;
+		case 2: do_something_to_all(force_shutdown_maker(false));				break;
 #else
 			//method #2
 			//this is a equivalence of calling i_server::del_socket in server_socket_base::on_recv_error (see server_socket_base for more details).
@@ -213,9 +235,9 @@ public:
 		case 2: while (n-- > 0) force_shutdown(at(0));				break;
 #endif
 			//if you just want to reconnect to the server, you should do it like this:
-		case 3: do_something_to_all(boost::lambda::if_then(boost::lambda::var(n)-- > 0, boost::lambda::bind(&echo_socket::graceful_shutdown, *boost::lambda::_1, true, true)));		break;
-		case 4: do_something_to_all(boost::lambda::if_then(boost::lambda::var(n)-- > 0, boost::lambda::bind(&echo_socket::graceful_shutdown, *boost::lambda::_1, true, false)));	break;
-		case 5: do_something_to_all(boost::lambda::if_then(boost::lambda::var(n)-- > 0, boost::lambda::bind(&echo_socket::force_shutdown, *boost::lambda::_1, true)));				break;
+		case 3: do_something_to_all(graceful_shutdown_maker(true, true));		break;
+		case 4: do_something_to_all(graceful_shutdown_maker(true, false));	break;
+		case 5: do_something_to_all(force_shutdown_maker(true));				break;
 		}
 	}
 

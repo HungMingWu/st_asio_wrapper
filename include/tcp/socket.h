@@ -154,9 +154,11 @@ protected:
 			ST_THIS lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
 			if (ec) //graceful shutdown is impossible
 				shutdown();
-			else if (!sync)
-				ST_THIS set_timer(TIMER_ASYNC_SHUTDOWN, 10, boost::lambda::if_then_else_return(boost::lambda::bind(&socket_base::async_shutdown_handler, this,
-					ST_ASIO_GRACEFUL_SHUTDOWN_MAX_DURATION * 100), true, false));
+			else if (!sync) {
+				ST_THIS set_timer(TIMER_ASYNC_SHUTDOWN, 10, [this](auto tid) {
+					return async_shutdown_handler(ST_ASIO_GRACEFUL_SHUTDOWN_MAX_DURATION * 100);
+				});
+			}
 			else
 			{
 				int loop_num = ST_ASIO_GRACEFUL_SHUTDOWN_MAX_DURATION * 100; //seconds to 10 milliseconds
@@ -363,8 +365,8 @@ private:
 			--loop_num;
 			if (loop_num > 0)
 			{
-				ST_THIS change_timer_call_back(TIMER_ASYNC_SHUTDOWN, boost::lambda::if_then_else_return(boost::lambda::bind(&socket_base::async_shutdown_handler, this,
-					loop_num), true, false));
+				ST_THIS change_timer_call_back(TIMER_ASYNC_SHUTDOWN,
+					[this, loop_num](auto tid) { return async_shutdown_handler(loop_num); });
 				return true;
 			}
 			else

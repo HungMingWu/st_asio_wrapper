@@ -31,7 +31,6 @@
 #include <boost/container/list.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-#include <boost/lambda/if.hpp>
 
 #include "config.h"
 
