@@ -42,10 +42,18 @@ protected:
 	void start()
 	{
 #if !defined(ST_ASIO_REUSE_OBJECT) && !defined(ST_ASIO_RESTORE_OBJECT)
-		set_timer(TIMER_FREE_SOCKET, 1000 * ST_ASIO_FREE_OBJECT_INTERVAL, (boost::lambda::bind(&object_pool::free_object, this, -1), true));
+		set_timer(TIMER_FREE_SOCKET, 1000 * ST_ASIO_FREE_OBJECT_INTERVAL, 
+			[this](auto tid) {
+				free_object(-1);
+				return true;
+			});
 #endif
 #ifdef ST_ASIO_CLEAR_OBJECT_INTERVAL
-		set_timer(TIMER_CLEAR_SOCKET, 1000 * ST_ASIO_CLEAR_OBJECT_INTERVAL, (boost::lambda::bind(&object_pool::clear_obsoleted_object, this), true));
+		set_timer(TIMER_CLEAR_SOCKET, 1000 * ST_ASIO_CLEAR_OBJECT_INTERVAL, 
+			[this](auto tid) {
+				clear_obsoleted_object();
+				return true;
+			});
 #endif
 	}
 
@@ -296,7 +304,13 @@ public:
 		return num_affected;
 	}
 
-	statistic get_statistic() {statistic stat; do_something_to_all(stat += boost::lambda::bind(&Object::get_statistic, *boost::lambda::_1)); return stat;}
+	statistic get_statistic() {
+		statistic stat;
+		do_something_to_all([&stat](auto &obj) {
+			stat += obj->get_statistic();
+		});
+		return stat;
+	}
 	void list_all_status() {do_something_to_all(boost::bind(&Object::show_status, _1));}
 	void list_all_object() {do_something_to_all(boost::bind(&Object::show_info, _1, "", ""));}
 

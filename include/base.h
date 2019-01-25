@@ -29,8 +29,7 @@
 #include <boost/version.hpp>
 #include <boost/date_time.hpp>
 #include <boost/container/list.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
+
 
 #include "config.h"
 

@@ -158,7 +158,10 @@ private:
 			int delay = prepare_reconnect(ec);
 			if (delay >= 0)
 			{
-				ST_THIS set_timer(TIMER_CONNECT, delay, (boost::lambda::bind(&client_socket_base::do_start, this), false));
+				ST_THIS set_timer(TIMER_CONNECT, delay, [this](auto tid) {
+					do_start();
+					return false;
+				});
 				return true;
 			}
 		}
