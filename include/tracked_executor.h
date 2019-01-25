@@ -31,6 +31,7 @@ public:
 
 	bool stopped() const {return io_context_.stopped();}
 
+	#if BOOST_ASIO_VERSION >= 101100
 	void post(const std::function<void()>& handler) {boost::asio::post(io_context_, (aci, boost::lambda::bind(boost::lambda::unlambda(handler))));}
 	void defer(const std::function<void()>& handler) {boost::asio::defer(io_context_, (aci, boost::lambda::bind(boost::lambda::unlambda(handler))));}
 	void dispatch(const std::function<void()>& handler) {boost::asio::dispatch(io_context_, (aci, boost::lambda::bind(boost::lambda::unlambda(handler))));}
@@ -40,6 +41,14 @@ public:
 		{boost::asio::defer(strand, (aci, boost::lambda::bind(boost::lambda::unlambda(handler))));}
 	void dispatch_strand(boost::asio::io_context::strand& strand, const std::function<void()>& handler)
 		{boost::asio::dispatch(strand, (aci, boost::lambda::bind(boost::lambda::unlambda(handler))));}
+	#else
+	void post(const std::function<void()>& handler) {io_context_.post((aci, boost::lambda::bind(boost::lambda::unlambda(handler))));}
+	void dispatch(const std::function<void()>& handler) {io_context_.dispatch((aci, boost::lambda::bind(boost::lambda::unlambda(handler))));}
+	void post_strand(boost::asio::io_context::strand& strand, const std::function<void()>& handler)
+		{strand.post((aci, boost::lambda::bind(boost::lambda::unlambda(handler))));}
+	void dispatch_strand(boost::asio::io_context::strand& strand, const std::function<void()>& handler)
+		{strand.dispatch((aci, boost::lambda::bind(boost::lambda::unlambda(handler))));}
+	#endif
 
 	handler_with_error make_handler_error(const handler_with_error& handler) const {return (aci, boost::lambda::bind(boost::lambda::unlambda(handler), boost::lambda::_1));}
 	handler_with_error_size make_handler_error_size(const handler_with_error_size& handler) const
