@@ -229,9 +229,9 @@ namespace udp
 struct statistic
 {
 #ifdef ST_ASIO_FULL_STATISTIC
-	typedef boost::chrono::system_clock::time_point stat_time;
-	static stat_time now() {return boost::chrono::system_clock::now();}
-	typedef boost::chrono::system_clock::duration stat_duration;
+	typedef std::chrono::system_clock::time_point stat_time;
+	static stat_time now() {return std::chrono::system_clock::now();}
+	typedef std::chrono::system_clock::duration stat_duration;
 #else
 	struct dummy_duration {dummy_duration& operator+=(const dummy_duration& other) {return *this;}}; //not a real duration, just satisfy compiler(d1 += d2)
 	struct dummy_time {dummy_duration operator-(const dummy_time& other) {return dummy_duration();}}; //not a real time, just satisfy compiler(t1 - t2)
@@ -296,18 +296,18 @@ struct statistic
 			<< "message sum: " << send_msg_sum << std::endl
 			<< "size in bytes: " << send_byte_sum << std::endl
 #ifdef ST_ASIO_FULL_STATISTIC
-			<< "send delay: " << boost::chrono::duration_cast<boost::chrono::duration<float> >(send_delay_sum).count() << std::endl
-			<< "send duration: " << boost::chrono::duration_cast<boost::chrono::duration<float> >(send_time_sum).count() << std::endl
-			<< "pack duration: " << boost::chrono::duration_cast<boost::chrono::duration<float> >(pack_time_sum).count() << std::endl
+			<< "send delay: " << std::chrono::duration_cast<std::chrono::duration<float> >(send_delay_sum).count() << std::endl
+			<< "send duration: " << std::chrono::duration_cast<std::chrono::duration<float> >(send_time_sum).count() << std::endl
+			<< "pack duration: " << std::chrono::duration_cast<std::chrono::duration<float> >(pack_time_sum).count() << std::endl
 #endif
 			<< "\nrecv corresponding statistic:\n"
 			<< "message sum: " << recv_msg_sum << std::endl
 			<< "size in bytes: " << recv_byte_sum
 #ifdef ST_ASIO_FULL_STATISTIC
-			<< "\ndispatch delay: " << boost::chrono::duration_cast<boost::chrono::duration<float> >(dispatch_dealy_sum).count() << std::endl
-			<< "recv idle duration: " << boost::chrono::duration_cast<boost::chrono::duration<float> >(recv_idle_sum).count() << std::endl
-			<< "on_msg_handle duration: " << boost::chrono::duration_cast<boost::chrono::duration<float> >(handle_time_sum).count() << std::endl
-			<< "unpack duration: " << boost::chrono::duration_cast<boost::chrono::duration<float> >(unpack_time_sum).count()
+			<< "\ndispatch delay: " << std::chrono::duration_cast<std::chrono::duration<float> >(dispatch_dealy_sum).count() << std::endl
+			<< "recv idle duration: " << std::chrono::duration_cast<std::chrono::duration<float> >(recv_idle_sum).count() << std::endl
+			<< "on_msg_handle duration: " << std::chrono::duration_cast<std::chrono::duration<float> >(handle_time_sum).count() << std::endl
+			<< "unpack duration: " << std::chrono::duration_cast<std::chrono::duration<float> >(unpack_time_sum).count()
 #endif
 		;return s.str();
 	}

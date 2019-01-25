@@ -39,11 +39,7 @@ class timer : public Executor
 {
 public:
 #if defined(ST_ASIO_USE_STEADY_TIMER) || defined(ST_ASIO_USE_SYSTEM_TIMER)
-	#ifdef BOOST_ASIO_HAS_STD_CHRONO
-		typedef std::chrono::milliseconds milliseconds;
-	#else
-		typedef boost::chrono::milliseconds milliseconds;
-	#endif
+	typedef std::chrono::milliseconds milliseconds;
 
 	#ifdef ST_ASIO_USE_STEADY_TIMER
 		typedef boost::asio::steady_timer timer_type;
@@ -198,10 +194,10 @@ protected:
 	void timer_handler(const boost::system::error_code& ec, timer_info& ti, unsigned char prev_seq)
 	{
 #ifdef ST_ASIO_ALIGNED_TIMER
-		auto begin_time = boost::chrono::system_clock::now();
+		auto begin_time = std::chrono::system_clock::now();
 		if (!ec && ti.call_back(ti.id) && timer_info::TIMER_STARTED == ti.status)
 		{
-			unsigned elapsed_ms = (unsigned) boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::system_clock::now() - begin_time).count();
+			unsigned elapsed_ms = (unsigned) std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begin_time).count();
 			if (elapsed_ms > ti.interval_ms)
 				elapsed_ms %= ti.interval_ms;
 
