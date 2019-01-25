@@ -387,13 +387,8 @@ template<typename T> struct obj_with_begin_time_promise : public obj_with_begin_
 	std::this_thread::sleep_for(std::chrono::milliseconds(50)); \
 }
 
-#define GET_PENDING_MSG_NUM(FUNNAME, CAN) size_t FUNNAME() const {return CAN.size();}
 #define POP_FIRST_PENDING_MSG(FUNNAME, CAN, MSGTYPE) void FUNNAME(MSGTYPE& msg) {msg.clear(); CAN.try_dequeue(msg);}
-#define POP_FIRST_PENDING_MSG_NOTIFY(FUNNAME, CAN, MSGTYPE) void FUNNAME(MSGTYPE& msg) \
-	{msg.clear(); if (CAN.try_dequeue(msg) && msg.p) msg.p->set_value(NOT_APPLICABLE);}
 #define POP_ALL_PENDING_MSG(FUNNAME, CAN, CANTYPE) void FUNNAME(CANTYPE& can) {can.clear(); CAN.swap(can);}
-#define POP_ALL_PENDING_MSG_NOTIFY(FUNNAME, CAN, CANTYPE) void FUNNAME(CANTYPE& can) \
-	{can.clear(); CAN.swap(can); for (auto iter = can.begin(); iter != can.end(); ++iter) if (iter->p) iter->p->set_value(NOT_APPLICABLE);}
 
 ///////////////////////////////////////////////////
 //TCP msg sending interface

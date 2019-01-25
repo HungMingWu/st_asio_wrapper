@@ -243,12 +243,23 @@ public:
 #endif
 
 	//how many msgs waiting for sending or dispatching
-	GET_PENDING_MSG_NUM(get_pending_send_msg_num, send_msg_buffer)
-	GET_PENDING_MSG_NUM(get_pending_recv_msg_num, recv_msg_buffer)
+	size_t get_pending_send_msg_num() const { return send_msg_buffer.size(); }
+	size_t get_pending_recv_msg_num() const { return recv_msg_buffer.size(); }
 
 #ifdef ST_ASIO_SYNC_SEND
-	POP_FIRST_PENDING_MSG_NOTIFY(pop_first_pending_send_msg, send_msg_buffer, in_msg)
-	POP_ALL_PENDING_MSG_NOTIFY(pop_all_pending_send_msg, send_msg_buffer, in_container_type)
+	void pop_first_pending_send_msg(in_msg& msg)
+	{
+		msg.clear();
+		if (send_msg_buffer.try_dequeue(msg) && msg.p)
+			msg.p->set_value(NOT_APPLICABLE);
+	}
+	void pop_all_pending_send_msg(in_container_type& can)
+	{
+		can.clear();
+		send_msg_buffer.swap(can);
+		for (auto iter = can.begin(); iter != can.end(); ++iter)
+			if (iter->p) iter->p->set_value(NOT_APPLICABLE);
+	}
 #else
 	POP_FIRST_PENDING_MSG(pop_first_pending_send_msg, send_msg_buffer, in_msg)
 	POP_ALL_PENDING_MSG(pop_all_pending_send_msg, send_msg_buffer, in_container_type)

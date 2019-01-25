@@ -32,27 +32,27 @@ public:
 	bool stopped() const {return io_context_.stopped();}
 
 	#if BOOST_ASIO_VERSION >= 101100
-	void post(const std::function<void()>& handler) {boost::asio::post(io_context_, (aci, handler));}
-	void defer(const std::function<void()>& handler) {boost::asio::defer(io_context_, (aci, handler));}
-	void dispatch(const std::function<void()>& handler) {boost::asio::dispatch(io_context_, (aci, handler));}
+	void post(const std::function<void()>& handler) {boost::asio::post(io_context_, handler);}
+	void defer(const std::function<void()>& handler) {boost::asio::defer(io_context_, handler);}
+	void dispatch(const std::function<void()>& handler) {boost::asio::dispatch(io_context_, handler);}
 	void post_strand(boost::asio::io_context::strand& strand, const std::function<void()>& handler)
-		{boost::asio::post(strand, (aci, handler));}
+		{boost::asio::post(strand, handler);}
 	void defer_strand(boost::asio::io_context::strand& strand, const std::function<void()>& handler)
-		{boost::asio::defer(strand, (aci, handler));}
+		{boost::asio::defer(strand, handler);}
 	void dispatch_strand(boost::asio::io_context::strand& strand, const std::function<void()>& handler)
-		{boost::asio::dispatch(strand, (aci, handler));}
+		{boost::asio::dispatch(strand, handler);}
 	#else
-	void post(const std::function<void()>& handler) {io_context_.post((aci, handler));}
-	void dispatch(const std::function<void()>& handler) {io_context_.dispatch((aci, handler));}
+	void post(const std::function<void()>& handler) {io_context_.post(handler);}
+	void dispatch(const std::function<void()>& handler) {io_context_.dispatch(handler);}
 	void post_strand(boost::asio::io_context::strand& strand, const std::function<void()>& handler)
-		{strand.post((aci, handler));}
+		{strand.post(handler);}
 	void dispatch_strand(boost::asio::io_context::strand& strand, const std::function<void()>& handler)
-		{strand.dispatch((aci, handler));}
+		{strand.dispatch(handler);}
 	#endif
 
-	handler_with_error make_handler_error(const handler_with_error& handler) const {return (aci, handler);}
+	handler_with_error make_handler_error(const handler_with_error& handler) const {return handler;}
 	handler_with_error_size make_handler_error_size(const handler_with_error_size& handler) const
-		{return (aci, handler);}
+		{return handler;}
 
 	bool is_async_calling() const {return !aci.unique();}
 	bool is_last_async_call() const {return aci.use_count() <= 2;} //can only be called in callbacks

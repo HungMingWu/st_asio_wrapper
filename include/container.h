@@ -100,7 +100,7 @@ public:
 
 	//not thread safe
 	bool enqueue_(const T& item)
-		{try {ST_THIS emplace_back(item);} catch (const std::exception& e) {unified_out::error_out("cannot hold more objects (%s)", e.what()); return false;} return true;}
+		{try {emplace_back(item);} catch (const std::exception& e) {unified_out::error_out("cannot hold more objects (%s)", e.what()); return false;} return true;}
 	bool enqueue_(T& item) //after this, item will becomes empty, please note.
 		{try {ST_THIS emplace_back();} catch (const std::exception& e) {unified_out::error_out("cannot hold more objects (%s)", e.what()); return false;} ST_THIS back().swap(item); return true;}
 	void move_items_in_(boost::container::list<T>& can) {ST_THIS splice(ST_THIS end(), can);}
