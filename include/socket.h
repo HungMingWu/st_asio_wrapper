@@ -452,11 +452,7 @@ protected:
 		if (!sending && is_ready())
 			send_msg();
 
-#ifdef BOOST_THREAD_USES_CHRONO
 		return 0 == duration || boost::future_status::ready == f.wait_for(boost::chrono::milliseconds(duration)) ? f.get() : TIMEOUT;
-#else
-		return 0 == duration || f.timed_wait(boost::posix_time::milliseconds(duration)) ? f.get() : TIMEOUT;
-#endif
 	}
 #endif
 

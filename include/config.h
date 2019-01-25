@@ -575,12 +575,6 @@
 	#error st_asio_wrapper only support Visual C++, GCC and Clang.
 #endif
 
-#if BOOST_VERSION < 104900
-	#error st_asio_wrapper only support boost 1.49 or higher.
-#elif !defined(BOOST_THREAD_USES_CHRONO)
-	namespace boost {namespace this_thread {static inline void sleep_for(const chrono::milliseconds& rel_time) {sleep(posix_time::milliseconds(rel_time.count()));}}}
-#endif
-
 #if BOOST_ASIO_VERSION < 101100
 namespace boost {namespace asio {typedef io_service io_context;}}
 #define make_strand_handler(S, F) S.wrap(F)
