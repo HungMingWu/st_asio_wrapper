@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include <future>
 #include <atomic>
 #include <vector>
 #include <string>
@@ -24,8 +25,6 @@
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include <boost/chrono.hpp>
-#include <boost/thread.hpp>
 #include <boost/version.hpp>
 #include <boost/date_time.hpp>
 #include <boost/container/list.hpp>
@@ -366,10 +365,7 @@ template<typename T> struct obj_with_begin_time : public T
 #ifdef ST_ASIO_SYNC_SEND
 template<typename T> struct obj_with_begin_time_promise : public obj_with_begin_time<T>
 {
-#ifndef BOOST_THREAD_FUTURE
-#define BOOST_THREAD_FUTURE unique_future
-#endif
-	typedef boost::BOOST_THREAD_FUTURE<sync_call_result> future;
+	typedef std::future<sync_call_result> future;
 
 	obj_with_begin_time_promise(bool need_promise = false) {check_and_create_promise(need_promise);}
 	obj_with_begin_time_promise(T& obj, bool need_promise = false) : obj_with_begin_time<T>(obj) {check_and_create_promise(need_promise);}
@@ -378,9 +374,9 @@ template<typename T> struct obj_with_begin_time_promise : public obj_with_begin_
 	void swap(obj_with_begin_time_promise& other) {obj_with_begin_time<T>::swap(other); p.swap(other.p);}
 
 	void clear() {p.reset(); T::clear();}
-	void check_and_create_promise(bool need_promise) {if (!need_promise) p.reset(); else if (!p) p = std::make_shared<boost::promise<sync_call_result> >();}
+	void check_and_create_promise(bool need_promise) {if (!need_promise) p.reset(); else if (!p) p = std::make_shared<std::promise<sync_call_result> >();}
 
-	std::shared_ptr<boost::promise<sync_call_result> > p;
+	std::shared_ptr<std::promise<sync_call_result> > p;
 };
 #endif
 

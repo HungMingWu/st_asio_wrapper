@@ -451,13 +451,12 @@ protected:
 		}
 
 		in_msg unused(msg, true);
-		typename in_msg::future f;
-		unused.p->get_future().swap(f);
+		auto f = unused.p->get_future();
 		send_msg_buffer.enqueue(unused);
 		if (!sending && is_ready())
 			send_msg();
 
-		return 0 == duration || boost::future_status::ready == f.wait_for(boost::chrono::milliseconds(duration)) ? f.get() : TIMEOUT;
+		return 0 == duration || std::future_status::ready == f.wait_for(std::chrono::milliseconds(duration)) ? f.get() : TIMEOUT;
 	}
 #endif
 

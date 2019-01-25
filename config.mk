@@ -13,7 +13,7 @@ else
 	dir = release
 endif
 cflag += -DBOOST_ASIO_NO_DEPRECATED
-common_libs = -lboost_system -lboost_thread -lboost_chrono
+common_libs = -lboost_system
 
 kernel = ${shell uname -s}
 ifeq (${kernel}, SunOS)
