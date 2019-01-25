@@ -136,8 +136,13 @@ public:
 			boost::lambda::bind((void (timer::*) (timer_info&)) &timer::stop_timer, this, boost::lambda::_1)));
 	}
 
-	DO_SOMETHING_TO_ALL_MUTEX(timer_can, timer_can_mutex)
-	template<typename _Predicate>
+	template <typename _Predicate>
+	void do_something_to_all(const _Predicate& __pred)
+	{
+		boost::lock_guard<boost::mutex> lock(timer_can_mutex);
+		std::for_each(timer_can.begin(), timer_can.end(), __pred);
+	}
+	template <typename _Predicate>
 	void do_something_to_one(const _Predicate& __pred)
 	{
 		boost::lock_guard<boost::mutex> lock(timer_can_mutex);

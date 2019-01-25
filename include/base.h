@@ -435,25 +435,6 @@ template<typename T> struct obj_with_begin_time_promise : public obj_with_begin_
 };
 #endif
 
-//free functions, used to do something to any container(except map and multimap) optionally with any mutex
-template<typename _Can, typename _Mutex, typename _Predicate>
-void do_something_to_all(_Can& __can, _Mutex& __mutex, const _Predicate& __pred)
-{
-	boost::lock_guard<boost::mutex> lock(__mutex);
-	for(BOOST_AUTO(iter, __can.begin()); iter != __can.end(); ++iter) __pred(*iter);
-}
-
-//member functions, used to do something to any member container(except map and multimap) optionally with any member mutex
-#define DO_SOMETHING_TO_ALL_MUTEX(CAN, MUTEX) DO_SOMETHING_TO_ALL_MUTEX_NAME(do_something_to_all, CAN, MUTEX)
-#define DO_SOMETHING_TO_ALL(CAN) DO_SOMETHING_TO_ALL_NAME(do_something_to_all, CAN)
-
-#define DO_SOMETHING_TO_ALL_MUTEX_NAME(NAME, CAN, MUTEX) \
-template<typename _Predicate> void NAME(const _Predicate& __pred) {boost::lock_guard<boost::mutex> lock(MUTEX); for (BOOST_AUTO(iter, CAN.begin()); iter != CAN.end(); ++iter) __pred(*iter);}
-
-#define DO_SOMETHING_TO_ALL_NAME(NAME, CAN) \
-template<typename _Predicate> void NAME(const _Predicate& __pred) {for (BOOST_AUTO(iter, CAN.begin()); iter != CAN.end(); ++iter) __pred(*iter);} \
-template<typename _Predicate> void NAME(const _Predicate& __pred) const {for (BOOST_AUTO(iter, CAN.begin()); iter != CAN.end(); ++iter) __pred(*iter);}
-
 //used by both TCP and UDP
 #define SAFE_SEND_MSG_CHECK(F_VALUE) \
 { \
