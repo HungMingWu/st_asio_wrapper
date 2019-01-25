@@ -14,6 +14,7 @@
 #define ST_ASIO_SERVICE_PUMP_H_
 
 #include <mutex>
+#include <thread>
 #include "base.h"
 
 namespace st_asio_wrapper
@@ -174,7 +175,10 @@ public:
 	bool is_running() const {return !stopped();}
 	bool is_service_started() const {return started;}
 
-	void add_service_thread(int thread_num) {for (int i = 0; i < thread_num; ++i) service_threads.create_thread(boost::bind(&service_pump::run, this));}
+	void add_service_thread(int thread_num) {
+		for (int i = 0; i < thread_num; ++i) 
+			service_threads.emplace_back(boost::bind(&service_pump::run, this));
+	}
 #ifdef ST_ASIO_DECREASE_THREAD_AT_RUNTIME
 	void del_service_thread(int thread_num) {if (thread_num > 0) {del_thread_num += thread_num;}}
 	int service_thread_num() const {return real_thread_num;}
@@ -197,7 +201,8 @@ protected:
 
 	void wait_service()
 	{
-		service_threads.join_all();
+		for (auto &t : service_threads)
+			t.join();
 
 		started = false;
 #ifdef ST_ASIO_DECREASE_THREAD_AT_RUNTIME
@@ -229,7 +234,7 @@ protected:
 		size_t n = 0;
 
 		std::stringstream os;
-		os << "service thread[" << boost::this_thread::get_id() << "] begin.";
+		os << "service thread[" << std::this_thread::get_id() << "] begin.";
 		unified_out::info_out(os.str().data());
 		++real_thread_num;
 		while (true)
@@ -263,7 +268,7 @@ protected:
 			}
 		}
 		os.str("");
-		os << "service thread[" << boost::this_thread::get_id() << "] end.";
+		os << "service thread[" << std::this_thread::get_id() << "] end.";
 		unified_out::info_out(os.str().data());
 
 		return n;
@@ -304,7 +309,7 @@ private:
 	bool started;
 	container_type service_can;
 	std::mutex service_can_mutex;
-	boost::thread_group service_threads;
+	std::vector<std::thread> service_threads;
 
 #ifdef ST_ASIO_DECREASE_THREAD_AT_RUNTIME
 	atomic_int_fast32_t real_thread_num;

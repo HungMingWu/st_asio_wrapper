@@ -20,6 +20,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <thread>
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -390,7 +391,7 @@ template<typename T> struct obj_with_begin_time_promise : public obj_with_begin_
 #define SAFE_SEND_MSG_CHECK(F_VALUE) \
 { \
 	if (!is_ready()) return F_VALUE; \
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(50)); \
+	std::this_thread::sleep_for(std::chrono::milliseconds(50)); \
 }
 
 #define GET_PENDING_MSG_NUM(FUNNAME, CAN) size_t FUNNAME() const {return CAN.size();}

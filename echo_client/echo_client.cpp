@@ -165,7 +165,7 @@ private:
 		++recv_index;
 
 		//i'm the bottleneck -_-
-//		boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+//		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
 private:
@@ -238,7 +238,7 @@ void send_msg_one_by_one(echo_client& client, size_t msg_num, size_t msg_len, ch
 	unsigned percent = 0;
 	do
 	{
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 		unsigned new_percent = (unsigned) (100 * client.get_recv_bytes() / total_msg_bytes);
 		if (percent != new_percent)
@@ -281,7 +281,7 @@ void send_msg_randomly(echo_client& client, size_t msg_num, size_t msg_len, char
 	}
 
 	while(client.get_recv_bytes() < total_msg_bytes)
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	begin_time.stop();
 	delete[] buff;
@@ -342,14 +342,14 @@ void send_msg_concurrently(echo_client& client, size_t send_thread_num, size_t m
 		boost::ref(group_index), boost::ref(this_group_link_num), boost::ref(left_link_num)));
 
 	boost::timer::cpu_timer begin_time;
-	boost::thread_group threads;
+	std::vector<std::thread> threads;
 	for (auto iter = link_groups.begin(); iter != link_groups.end(); ++iter)
-		threads.create_thread(boost::bind(&thread_runtine, boost::ref(*iter), msg_num, msg_len, msg_fill));
+		threads.emplace_back(boost::bind(&thread_runtine, boost::ref(*iter), msg_num, msg_len, msg_fill));
 
 	unsigned percent = 0;
 	do
 	{
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 		unsigned new_percent = (unsigned) (100 * client.get_recv_bytes() / total_msg_bytes);
 		if (percent != new_percent)
@@ -359,7 +359,8 @@ void send_msg_concurrently(echo_client& client, size_t send_thread_num, size_t m
 			fflush(stdout);
 		}
 	} while (percent < 100);
-	threads.join_all();
+	for (auto &t : threads)
+		t.join();
 	begin_time.stop();
 
 	double used_time = (double) begin_time.elapsed().wall / 1000000000;
@@ -537,7 +538,7 @@ int main(int argc, const char* argv[])
 				puts("performance test begin, this application will have no response during the test!");
 
 				is_testing = true;
-				boost::thread(boost::bind(&start_test, repeat_times, mode, boost::ref(client), send_thread_num, msg_num, msg_len, msg_fill)).detach();
+				std::thread(boost::bind(&start_test, repeat_times, mode, boost::ref(client), send_thread_num, msg_num, msg_len, msg_fill)).detach();
 			}
 		}
 	}

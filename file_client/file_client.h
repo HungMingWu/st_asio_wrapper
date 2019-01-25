@@ -270,7 +270,7 @@ private:
 		change_timer_status(id, timer_info::TIMER_CANCELED);
 
 		//wait all file_socket to clean up themselves
-		while (!is_end()) boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+		while (!is_end()) std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		get_file();
 
 		return false;

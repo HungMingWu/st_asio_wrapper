@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <thread>
 
 //configuration
 #define ST_ASIO_SERVER_PORT		9528
@@ -151,7 +152,7 @@ int main(int argc, const char* argv[])
 	client2.set_server_addr(port + 1, ip);
 
 	sp.start_service();
-	boost::thread t = boost::thread(boost::bind(&sync_recv_thread, boost::ref(client)));
+	std::thread t = std::thread(boost::bind(&sync_recv_thread, boost::ref(client)));
 	while(sp.is_running())
 	{
 		std::string str;
@@ -166,7 +167,7 @@ int main(int argc, const char* argv[])
 			sp.stop_service();
 			t.join();
 
-			t = boost::thread(boost::bind(&sync_recv_thread, boost::ref(client)));
+			t = std::thread(boost::bind(&sync_recv_thread, boost::ref(client)));
 			sp.start_service();
 		}
 		else if (RECONNECT == str)

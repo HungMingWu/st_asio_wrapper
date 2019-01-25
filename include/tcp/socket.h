@@ -161,7 +161,7 @@ protected:
 			{
 				int loop_num = ST_ASIO_GRACEFUL_SHUTDOWN_MAX_DURATION * 100; //seconds to 10 milliseconds
 				while (--loop_num >= 0 && GRACEFUL_SHUTTING_DOWN == status)
-					boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
 				if (loop_num < 0) //graceful shutdown is impossible
 				{
 					unified_out::info_out("failed to graceful shutdown within %d seconds", ST_ASIO_GRACEFUL_SHUTDOWN_MAX_DURATION);

@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <thread>
 
 //configuration
 #define ST_ASIO_DELAY_CLOSE 1 //this demo not used object pool and doesn't need life cycle management,
@@ -64,7 +65,7 @@ int main(int argc, const char* argv[])
 //	service.lowest_layer().set_option(boost::asio::ip::multicast::join_group(boost::asio::ip::address::from_string("x.x.x.x")));
 //	sp.start_service();
 
-	boost::thread t = boost::thread(boost::bind(&sync_recv_thread, boost::ref(service)));
+	std::thread t = std::thread(boost::bind(&sync_recv_thread, boost::ref(service)));
 	while(sp.is_running())
 	{
 		std::string str;
@@ -80,7 +81,7 @@ int main(int argc, const char* argv[])
 			t.join();
 
 			sp.start_service();
-			t = boost::thread(boost::bind(&sync_recv_thread, boost::ref(service)));
+			t = std::thread(boost::bind(&sync_recv_thread, boost::ref(service)));
 		}
 		else
 			service.sync_safe_send_native_msg(str); //to send to different endpoints, use overloads that take a const boost::asio::ip::udp::endpoint& parameter
