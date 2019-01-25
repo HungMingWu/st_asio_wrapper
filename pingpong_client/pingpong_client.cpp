@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <atomic>
 #include <boost/timer/timer.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -29,11 +30,7 @@ using namespace st_asio_wrapper::ext::tcp;
 #define DECREASE_THREAD	"decrease thread"
 
 boost::timer::cpu_timer begin_time;
-#if BOOST_VERSION >= 105300
-boost::atomic_ushort completed_session_num;
-#else
-atomic<unsigned short> completed_session_num;
-#endif
+std::atomic_ushort completed_session_num;
 
 class echo_socket : public client_socket
 {

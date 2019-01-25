@@ -14,11 +14,8 @@ using namespace st_asio_wrapper::ext::tcp;
 
 extern int link_num;
 extern fl_type file_size;
-#if BOOST_VERSION >= 105300
-extern boost::atomic_int_fast64_t received_size;
-#else
-extern atomic<boost::int_fast64_t> received_size;
-#endif
+extern std::atomic_int_fast64_t received_size;
+
 
 class file_socket : public base_socket, public client_socket
 {

@@ -24,11 +24,9 @@
 
 int link_num = 1;
 fl_type file_size;
-#if BOOST_VERSION >= 105300
-boost::atomic_int_fast64_t received_size;
-#else
-atomic<boost::int_fast64_t> received_size;
-#endif
+
+std::atomic_int_fast64_t received_size;
+
 
 int main(int argc, const char* argv[])
 {

@@ -7,11 +7,8 @@ using namespace st_asio_wrapper::tcp;
 
 #include "../file_server/common.h"
 
-#if BOOST_VERSION >= 105300
-extern boost::atomic_int_fast64_t received_size;
-#else
-extern atomic<boost::int_fast64_t> received_size;
-#endif
+extern std::atomic_int_fast64_t received_size;
+
 
 class data_unpacker : public i_unpacker<replaceable_buffer>
 {
