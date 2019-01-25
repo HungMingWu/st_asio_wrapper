@@ -79,7 +79,9 @@ public:
 	object_type find(int id)
 	{
 		std::lock_guard lock(service_can_mutex);
-		BOOST_AUTO(iter, std::find_if(service_can.begin(), service_can.end(), std::bind2nd(std::mem_fun(&i_service::is_equal_to), id)));
+		auto iter = std::find_if(service_can.begin(), service_can.end(), [id](const auto &service) {
+				return service->is_equal_to(id);
+		});
 		return iter == service_can.end() ? NULL : *iter;
 	}
 
@@ -97,7 +99,9 @@ public:
 	void remove(int id)
 	{
 		std::unique_lock lock(service_can_mutex);
-		BOOST_AUTO(iter, std::find_if(service_can.begin(), service_can.end(), std::bind2nd(std::mem_fun(&i_service::is_equal_to), id)));
+		auto iter = std::find_if(service_can.begin(), service_can.end(), [id](const auto &service) {
+				return service->is_equal_to(id);
+		});
 		if (iter != service_can.end())
 		{
 			object_type i_service_ = *iter;
