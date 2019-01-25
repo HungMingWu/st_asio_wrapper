@@ -468,7 +468,7 @@ private:
 #ifdef ST_ASIO_SYNC_RECV
 	sync_call_result sync_recv_waiting(std::unique_lock<std::mutex>& lock, unsigned duration)
 	{
-		boost::function<bool ()> pred = boost::lambda::if_then_else_return(!boost::lambda::var(started_) || REQUESTED != boost::lambda::var(sr_status), true, false);
+		std::function<bool ()> pred = boost::lambda::if_then_else_return(!boost::lambda::var(started_) || REQUESTED != boost::lambda::var(sr_status), true, false);
 		if (0 == duration)
 			sync_recv_cv.wait(lock, pred);
 		else if (!sync_recv_cv.wait_for(lock, std::chrono::milliseconds(duration), pred))

@@ -559,9 +559,6 @@
 		#define ST_THIS //workaround to make up the BOOST_AUTO's defect on vc2008 and compiler crush before vc2012
 	#else
 		#define ST_THIS this->
-		#if _MSC_VER >= 1800
-			#pragma message("Your compiler is Visual C++ 12.0 (2013) or higher, you can use ascs to gain some performance improvement.")
-		#endif
 	#endif
 #elif defined(__GNUC__)
 	#define ST_ASIO_SF "%zu" //format used to print 'size_t'

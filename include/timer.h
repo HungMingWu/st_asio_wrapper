@@ -67,7 +67,7 @@ public:
 		timer_status status;
 		unsigned interval_ms;
 		timer_type timer;
-		boost::function<bool (tid)> call_back; //return true from call_back to continue the timer, or the timer will stop
+		std::function<bool (tid)> call_back; //return true from call_back to continue the timer, or the timer will stop
 
 		timer_info(tid id_, boost::asio::io_context& io_context_) : id(id_), seq(-1), status(TIMER_CREATED), interval_ms(0), timer(io_context_) {}
 		bool operator ==(const timer_info& other) {return id == other.id;}
@@ -79,7 +79,7 @@ public:
 	~timer() {stop_all_timer();}
 
 	//after this call, call_back cannot be used again, please note.
-	bool create_or_update_timer(tid id, unsigned interval, boost::function<bool(tid)>& call_back, bool start = false)
+	bool create_or_update_timer(tid id, unsigned interval, std::function<bool(tid)>& call_back, bool start = false)
 	{
 		timer_info* ti = NULL;
 		{
@@ -103,7 +103,7 @@ public:
 
 		return true;
 	}
-	bool create_or_update_timer(tid id, unsigned interval, const boost::function<bool (tid)>& call_back, bool start = false)
+	bool create_or_update_timer(tid id, unsigned interval, const std::function<bool (tid)>& call_back, bool start = false)
 	{
 		auto unused = call_back;
 		return create_or_update_timer(id, interval, unused, start);
@@ -121,18 +121,18 @@ public:
 	}
 
 	//after this call, call_back cannot be used again, please note.
-	bool change_timer_call_back(tid id, boost::function<bool(tid)>& call_back) {
+	bool change_timer_call_back(tid id, std::function<bool(tid)>& call_back) {
 		auto ti =  find_timer(id);
 		return NULL != ti ? ti->call_back.swap(call_back), true : false;
 	}
-	bool change_timer_call_back(tid id, const boost::function<bool(tid)>& call_back) {
+	bool change_timer_call_back(tid id, const std::function<bool(tid)>& call_back) {
 		auto unused = call_back;
 		return change_timer_call_back(id, unused);
 	}
 
 	//after this call, call_back cannot be used again, please note.
-	bool set_timer(tid id, unsigned interval, boost::function<bool(tid)>& call_back) {return create_or_update_timer(id, interval, call_back, true);}
-	bool set_timer(tid id, unsigned interval, const boost::function<bool(tid)>& call_back) {return create_or_update_timer(id, interval, call_back, true);}
+	bool set_timer(tid id, unsigned interval, std::function<bool(tid)>& call_back) {return create_or_update_timer(id, interval, call_back, true);}
+	bool set_timer(tid id, unsigned interval, const std::function<bool(tid)>& call_back) {return create_or_update_timer(id, interval, call_back, true);}
 
 	timer_info* find_timer(tid id)
 	{
