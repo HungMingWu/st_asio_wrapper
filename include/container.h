@@ -24,8 +24,6 @@ template<typename T> class list : public boost::container::list<T> {};
 class dummy_lockable
 {
 public:
-	typedef boost::lock_guard<dummy_lockable> lock_guard;
-
 	//lockable, dummy
 	bool is_lockable() const {return false;}
 	void lock() const {}
@@ -35,15 +33,13 @@ public:
 class lockable
 {
 public:
-	typedef boost::lock_guard<lockable> lock_guard;
-
 	//lockable
 	bool is_lockable() const {return true;}
 	void lock() {mutex.lock();}
 	void unlock() {mutex.unlock();}
 
 private:
-	boost::mutex mutex; //boost::mutex is more efficient than boost::shared_mutex
+	std::mutex mutex; //std::mutex is more efficient than boost::shared_mutex
 };
 
 //Container must at least has the following functions (like list):
@@ -75,14 +71,32 @@ public:
 	bool is_thread_safe() const {return Lockable::is_lockable();}
 	using Container::size;
 	using Container::empty;
-	void clear() {typename Lockable::lock_guard lock(*this); Container::clear();}
-	void swap(Container& other) {typename Lockable::lock_guard lock(*this); Container::swap(other);}
+	void clear() {
+		std::lock_guard lock(*this);
+		Container::clear();
+	}
+	void swap(Container& other) {
+		std::lock_guard lock(*this);
+		Container::swap(other);
+	}
 
 	//thread safe
-	bool enqueue(const T& item) {typename Lockable::lock_guard lock(*this); return enqueue_(item);}
-	bool enqueue(T& item) {typename Lockable::lock_guard lock(*this); return enqueue_(item);}
-	void move_items_in(boost::container::list<T>& can) {typename Lockable::lock_guard lock(*this); move_items_in_(can);}
-	bool try_dequeue(T& item) {typename Lockable::lock_guard lock(*this); return try_dequeue_(item);}
+	bool enqueue(const T& item) {
+		std::lock_guard lock(*this);
+		return enqueue_(item);
+	}
+	bool enqueue(T& item) {
+		std::lock_guard lock(*this);
+		return enqueue_(item);
+	}
+	void move_items_in(boost::container::list<T>& can) {
+		std::lock_guard lock(*this);
+		move_items_in_(can);
+	}
+	bool try_dequeue(T& item) {
+		std::lock_guard lock(*this);
+		return try_dequeue_(item);
+	}
 
 	//not thread safe
 	bool enqueue_(const T& item)

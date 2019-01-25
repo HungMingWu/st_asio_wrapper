@@ -185,7 +185,7 @@ public:
 
 	void get_file(boost::container::list<std::string>& files)
 	{
-		boost::unique_lock<boost::mutex> lock(file_list_mutex);
+		std::unique_lock lock(file_list_mutex);
 		file_list.splice(file_list.end(), files);
 		lock.unlock();
 
@@ -202,7 +202,7 @@ public:
 private:
 	void get_file()
 	{
-		boost::lock_guard<boost::mutex> lock(file_list_mutex);
+		std::lock_guard lock(file_list_mutex);
 
 		if (is_timer(UPDATE_PROGRESS))
 			return;
@@ -283,7 +283,7 @@ protected:
 	boost::timer::cpu_timer begin_time;
 
 	boost::container::list<std::string> file_list;
-	boost::mutex file_list_mutex;
+	std::mutex file_list_mutex;
 };
 
 #endif //#ifndef FILE_CLIENT_H_

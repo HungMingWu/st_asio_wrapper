@@ -13,6 +13,7 @@
 #ifndef ST_ASIO_SERVICE_PUMP_H_
 #define ST_ASIO_SERVICE_PUMP_H_
 
+#include <mutex>
 #include "base.h"
 
 namespace st_asio_wrapper
@@ -77,7 +78,7 @@ public:
 
 	object_type find(int id)
 	{
-		boost::lock_guard<boost::mutex> lock(service_can_mutex);
+		std::lock_guard lock(service_can_mutex);
 		BOOST_AUTO(iter, std::find_if(service_can.begin(), service_can.end(), std::bind2nd(std::mem_fun(&i_service::is_equal_to), id)));
 		return iter == service_can.end() ? NULL : *iter;
 	}
@@ -86,7 +87,7 @@ public:
 	{
 		assert(NULL != i_service_);
 
-		boost::unique_lock<boost::mutex> lock(service_can_mutex);
+		std::unique_lock lock(service_can_mutex);
 		service_can.remove(i_service_);
 		lock.unlock();
 
@@ -95,7 +96,7 @@ public:
 
 	void remove(int id)
 	{
-		boost::unique_lock<boost::mutex> lock(service_can_mutex);
+		std::unique_lock lock(service_can_mutex);
 		BOOST_AUTO(iter, std::find_if(service_can.begin(), service_can.end(), std::bind2nd(std::mem_fun(&i_service::is_equal_to), id)));
 		if (iter != service_can.end())
 		{
@@ -111,7 +112,7 @@ public:
 	{
 		container_type temp_service_can;
 
-		boost::unique_lock<boost::mutex> lock(service_can_mutex);
+		std::unique_lock lock(service_can_mutex);
 		temp_service_can.splice(temp_service_can.end(), service_can);
 		lock.unlock();
 
@@ -272,13 +273,13 @@ protected:
 	template <typename _Predicate>
 	void do_something_to_all(const _Predicate& __pred)
 	{
-		boost::lock_guard<boost::mutex> lock(service_can_mutex);
+		std::lock_guard lock(service_can_mutex);
 		std::for_each(service_can.begin(), service_can.end(), __pred);
 	}
 	template <typename _Predicate>
 	void do_something_to_one(const _Predicate& __pred)
 	{
-		boost::lock_guard<boost::mutex> lock(service_can_mutex);
+		std::lock_guard lock(service_can_mutex);
 		std::any_of(service_can.begin(), service_can.end(), __pred);
 	}
 
@@ -287,7 +288,7 @@ private:
 	{
 		assert(NULL != i_service_);
 
-		boost::unique_lock<boost::mutex> lock(service_can_mutex);
+		std::unique_lock lock(service_can_mutex);
 		service_can.emplace_back(i_service_);
 		lock.unlock();
 
@@ -298,7 +299,7 @@ private:
 private:
 	bool started;
 	container_type service_can;
-	boost::mutex service_can_mutex;
+	std::mutex service_can_mutex;
 	boost::thread_group service_threads;
 
 #ifdef ST_ASIO_DECREASE_THREAD_AT_RUNTIME

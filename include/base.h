@@ -53,17 +53,17 @@ public:
 	atomic() : data(0) {}
 	atomic(T _data) : data(_data) {}
 
-	T operator++() {boost::lock_guard<boost::mutex> lock(data_mutex); return ++data;}
+	T operator++() {std::lock_guard lock(data_mutex); return ++data;}
 	//deliberately omitted operator++(int)
-	T operator+=(T value) {boost::lock_guard<boost::mutex> lock(data_mutex); return data += value;}
-	T operator--() {boost::lock_guard<boost::mutex> lock(data_mutex); return --data;}
+	T operator+=(T value) {std::lock_guard lock(data_mutex); return data += value;}
+	T operator--() {std::lock_guard lock(data_mutex); return --data;}
 	//deliberately omitted operator--(int)
-	T operator-=(T value) {boost::lock_guard<boost::mutex> lock(data_mutex); return data -= value;}
-	T operator=(T value) {boost::lock_guard<boost::mutex> lock(data_mutex); return data = value;}
-	T exchange(T value, boost::memory_order) {boost::lock_guard<boost::mutex> lock(data_mutex); T pre_data = data; data = value; return pre_data;}
-	T fetch_add(T value, boost::memory_order) {boost::lock_guard<boost::mutex> lock(data_mutex); T pre_data = data; data += value; return pre_data;}
-	T fetch_sub(T value, boost::memory_order) {boost::lock_guard<boost::mutex> lock(data_mutex); T pre_data = data; data -= value; return pre_data;}
-	void store(T value, boost::memory_order) {boost::lock_guard<boost::mutex> lock(data_mutex); data = value;}
+	T operator-=(T value) {std::lock_guard lock(data_mutex); return data -= value;}
+	T operator=(T value) {std::lock_guard lock(data_mutex); return data = value;}
+	T exchange(T value, boost::memory_order) {std::lock_guard lock(data_mutex); T pre_data = data; data = value; return pre_data;}
+	T fetch_add(T value, boost::memory_order) {std::lock_guard lock(data_mutex); T pre_data = data; data += value; return pre_data;}
+	T fetch_sub(T value, boost::memory_order) {std::lock_guard lock(data_mutex); T pre_data = data; data -= value; return pre_data;}
+	void store(T value, boost::memory_order) {std::lock_guard lock(data_mutex); data = value;}
 	T load(boost::memory_order) const {return data;}
 
 	bool is_lock_free() const {return false;}
@@ -71,7 +71,7 @@ public:
 
 private:
 	T data;
-	boost::mutex data_mutex;
+	std::mutex data_mutex;
 };
 typedef atomic<boost::uint_fast64_t> atomic_uint_fast64;
 typedef atomic<size_t> atomic_size_t;
@@ -400,19 +400,6 @@ template<typename T> struct obj_with_begin_time : public T
 
 	typename statistic::stat_time begin_time;
 };
-
-#ifdef ST_ASIO_SYNC_RECV
-#ifdef BOOST_THREAD_USES_CHRONO
-typedef boost::condition_variable condition_variable;
-#else
-class condition_variable : public boost::condition_variable
-{
-public:
-	template <typename Predicate> bool wait_for(boost::unique_lock<boost::mutex>& lock, const boost::chrono::milliseconds& duration, Predicate pred)
-		{return timed_wait(lock, boost::posix_time::milliseconds(duration.count()), pred);}
-};
-#endif
-#endif
 
 #ifdef ST_ASIO_SYNC_SEND
 template<typename T> struct obj_with_begin_time_promise : public obj_with_begin_time<T>

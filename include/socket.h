@@ -13,6 +13,7 @@
 #ifndef ST_ASIO_SOCKET_H_
 #define ST_ASIO_SOCKET_H_
 
+#include <condition_variable>
 #include "tracked_executor.h"
 #include "timer.h"
 
@@ -221,7 +222,7 @@ public:
 		if (stopped())
 			return NOT_APPLICABLE;
 
-		boost::unique_lock<boost::mutex> lock(sync_recv_mutex);
+		std::unique_lock lock(sync_recv_mutex);
 		if (NOT_REQUESTED != sr_status)
 			return DUPLICATE;
 
@@ -363,7 +364,7 @@ protected:
 	bool handle_msg()
 	{
 #ifdef ST_ASIO_SYNC_RECV
-		boost::unique_lock<boost::mutex> lock(sync_recv_mutex);
+		std::unique_lock lock(sync_recv_mutex);
 		if (REQUESTED == sr_status)
 		{
 			sr_status = RESPONDED;
@@ -469,13 +470,13 @@ private:
 	void id(boost::uint_fast64_t id) {_id = id;}
 
 #ifdef ST_ASIO_SYNC_RECV
-	sync_call_result sync_recv_waiting(boost::unique_lock<boost::mutex>& lock, unsigned duration)
+	sync_call_result sync_recv_waiting(std::unique_lock<std::mutex>& lock, unsigned duration)
 	{
 		//BOOST_AUTO cannot deduce the return type from lambda expressions in Clang
 		boost::function<bool ()> pred = boost::lambda::if_then_else_return(!boost::lambda::var(started_) || REQUESTED != boost::lambda::var(sr_status), true, false);
 		if (0 == duration)
 			sync_recv_cv.wait(lock, pred);
-		else if (!sync_recv_cv.wait_for(lock, boost::chrono::milliseconds(duration), pred))
+		else if (!sync_recv_cv.wait_for(lock, std::chrono::milliseconds(duration), pred))
 			return TIMEOUT;
 
 		return RESPONDED == sr_status ? SUCCESS : NOT_APPLICABLE;
@@ -639,8 +640,8 @@ private:
 	enum sync_recv_status {NOT_REQUESTED, REQUESTED, RESPONDED};
 	sync_recv_status sr_status;
 
-	boost::mutex sync_recv_mutex;
-	condition_variable sync_recv_cv;
+	std::mutex sync_recv_mutex;
+	std::condition_variable sync_recv_cv;
 #endif
 
 	unsigned msg_resuming_interval_, msg_handling_interval_;

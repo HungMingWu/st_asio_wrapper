@@ -13,6 +13,7 @@
 #ifndef ST_ASIO_TIMER_H_
 #define ST_ASIO_TIMER_H_
 
+#include <mutex>
 #ifdef ST_ASIO_USE_STEADY_TIMER
 #include <boost/asio/steady_timer.hpp>
 #elif defined(ST_ASIO_USE_SYSTEM_TIMER)
@@ -82,7 +83,7 @@ public:
 	{
 		timer_info* ti = NULL;
 		{
-			boost::lock_guard<boost::mutex> lock(timer_can_mutex);
+			std::lock_guard lock(timer_can_mutex);
 			BOOST_AUTO(iter, std::find(timer_can.begin(), timer_can.end(), id));
 			if (iter == timer_can.end())
 			{
@@ -118,7 +119,7 @@ public:
 
 	timer_info* find_timer(tid id)
 	{
-		boost::lock_guard<boost::mutex> lock(timer_can_mutex);
+		std::lock_guard lock(timer_can_mutex);
 		BOOST_AUTO(iter, std::find(timer_can.begin(), timer_can.end(), id));
 		if (iter != timer_can.end())
 			return &*iter;
@@ -139,13 +140,13 @@ public:
 	template <typename _Predicate>
 	void do_something_to_all(const _Predicate& __pred)
 	{
-		boost::lock_guard<boost::mutex> lock(timer_can_mutex);
+		std::lock_guard lock(timer_can_mutex);
 		std::for_each(timer_can.begin(), timer_can.end(), __pred);
 	}
 	template <typename _Predicate>
 	void do_something_to_one(const _Predicate& __pred)
 	{
-		boost::lock_guard<boost::mutex> lock(timer_can_mutex);
+		std::lock_guard lock(timer_can_mutex);
 		std::any_of(timer_can.begin(), timer_can.end(), __pred);
 	}
 
@@ -201,7 +202,7 @@ protected:
 private:
 	typedef boost::container::list<timer_info> container_type;
 	container_type timer_can;
-	boost::mutex timer_can_mutex;
+	std::mutex timer_can_mutex;
 
 	using Executor::io_context_;
 };

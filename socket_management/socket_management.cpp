@@ -1,4 +1,5 @@
 
+#include <mutex>
 #include <iostream>
 #include <boost/tokenizer.hpp>
 
@@ -20,11 +21,11 @@ using namespace st_asio_wrapper::ext::tcp;
 #include "client.h"
 
 static std::map<std::string, boost::uint_fast64_t> link_map;
-static boost::mutex link_map_mutex;
+static std::mutex link_map_mutex;
 
 bool add_link(const std::string& name, boost::uint_fast64_t id)
 {
-	boost::lock_guard<boost::mutex> lock(link_map_mutex);
+	std::lock_guard lock(link_map_mutex);
 	if (link_map.count(name) > 0)
 	{
 		printf("%s already exists.\n", name.data());
@@ -38,13 +39,13 @@ bool add_link(const std::string& name, boost::uint_fast64_t id)
 
 bool del_link(const std::string& name)
 {
-	boost::lock_guard<boost::mutex> lock(link_map_mutex);
+	std::lock_guard lock(link_map_mutex);
 	return link_map.erase(name) > 0;
 }
 
 boost::uint_fast64_t find_link(const std::string& name)
 {
-	boost::lock_guard<boost::mutex> lock(link_map_mutex);
+	std::lock_guard lock(link_map_mutex);
 	auto iter = link_map.find(name);
 	return iter != link_map.end() ? iter->second : -1;
 }
@@ -53,7 +54,7 @@ boost::uint_fast64_t find_and_del_link(const std::string& name)
 {
 	boost::uint_fast64_t id = -1;
 
-	boost::lock_guard<boost::mutex> lock(link_map_mutex);
+	std::lock_guard lock(link_map_mutex);
 	auto iter = link_map.find(name);
 	if (iter != link_map.end())
 	{

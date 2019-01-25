@@ -57,7 +57,7 @@ protected:
 			return false;
 		assert(!object_ptr->is_equal_to(-1));
 
-		boost::lock_guard<boost::mutex> lock(object_can_mutex);
+		std::lock_guard lock(object_can_mutex);
 		return object_can.size() < max_size_ ? object_can.emplace(object_ptr->id(), object_ptr).second : false;
 	}
 
@@ -67,13 +67,13 @@ protected:
 	{
 		assert(object_ptr);
 
-		boost::unique_lock<boost::mutex> lock(object_can_mutex);
+		std::unique_lock lock(object_can_mutex);
 		bool exist = object_can.erase(object_ptr->id()) > 0;
 		lock.unlock();
 
 		if (exist)
 		{
-			boost::lock_guard<boost::mutex> lock(invalid_object_can_mutex);
+			std::lock_guard lock(invalid_object_can_mutex);
 			try {invalid_object_can.emplace_back(object_ptr);} catch (const std::exception& e) {unified_out::error_out("cannot hold more objects (%s)", e.what());}
 		}
 
@@ -108,7 +108,7 @@ protected:
 		{
 			assert(!find(id));
 
-			boost::lock_guard<boost::mutex> lock(object_can_mutex);
+			std::lock_guard lock(object_can_mutex);
 			object_can.erase(object_ptr->id());
 			object_ptr->id(id);
 			object_can.emplace(id, object_ptr); //must succeed
@@ -159,13 +159,13 @@ public:
 
 	size_t size()
 	{
-		boost::lock_guard<boost::mutex> lock(object_can_mutex);
+		std::lock_guard lock(object_can_mutex);
 		return object_can.size();
 	}
 
 	object_type find(boost::uint_fast64_t id)
 	{
-		boost::lock_guard<boost::mutex> lock(object_can_mutex);
+		std::lock_guard lock(object_can_mutex);
 		BOOST_AUTO(iter, object_can.find(id));
 		return iter != object_can.end() ? iter->second : object_type();
 	}
@@ -173,21 +173,21 @@ public:
 	//this method has linear complexity, please note.
 	object_type at(size_t index)
 	{
-		boost::lock_guard<boost::mutex> lock(object_can_mutex);
+		std::lock_guard lock(object_can_mutex);
 		assert(index < object_can.size());
 		return index < object_can.size() ? boost::next(object_can.begin(), index)->second : object_type();
 	}
 
 	size_t invalid_object_size()
 	{
-		boost::lock_guard<boost::mutex> lock(invalid_object_can_mutex);
+		std::lock_guard lock(invalid_object_can_mutex);
 		return invalid_object_can.size();
 	}
 
 	//this method has linear complexity, please note.
 	object_type invalid_object_find(boost::uint_fast64_t id)
 	{
-		boost::lock_guard<boost::mutex> lock(invalid_object_can_mutex);
+		std::lock_guard lock(invalid_object_can_mutex);
 		BOOST_AUTO(iter, std::find_if(invalid_object_can.begin(), invalid_object_can.end(), boost::bind(&Object::is_equal_to, _1, id)));
 		return iter == invalid_object_can.end() ? object_type() : *iter;
 	}
@@ -195,7 +195,7 @@ public:
 	//this method has linear complexity, please note.
 	object_type invalid_object_at(size_t index)
 	{
-		boost::lock_guard<boost::mutex> lock(invalid_object_can_mutex);
+		std::lock_guard lock(invalid_object_can_mutex);
 		assert(index < invalid_object_can.size());
 		return index < invalid_object_can.size() ? *boost::next(invalid_object_can.begin(), index) : object_type();
 	}
@@ -203,7 +203,7 @@ public:
 	//this method has linear complexity, please note.
 	object_type invalid_object_pop(boost::uint_fast64_t id)
 	{
-		boost::lock_guard<boost::mutex> lock(invalid_object_can_mutex);
+		std::lock_guard lock(invalid_object_can_mutex);
 		BOOST_AUTO(iter, std::find_if(invalid_object_can.begin(), invalid_object_can.end(), boost::bind(&Object::is_equal_to, _1, id)));
 		if (iter != invalid_object_can.end() && (*iter).unique() && (*iter)->obsoleted())
 		{
@@ -217,7 +217,7 @@ public:
 	//this method has linear complexity, please note.
 	object_type invalid_object_pop()
 	{
-		boost::lock_guard<boost::mutex> lock(invalid_object_can_mutex);
+		std::lock_guard lock(invalid_object_can_mutex);
 		for (BOOST_AUTO(iter, invalid_object_can.begin()); iter != invalid_object_can.end(); ++iter)
 			if ((*iter).unique() && (*iter)->obsoleted())
 			{
@@ -237,7 +237,7 @@ public:
 	{
 		BOOST_TYPEOF(invalid_object_can) objects;
 
-		boost::unique_lock<boost::mutex> lock(object_can_mutex);
+		std::unique_lock lock(object_can_mutex);
 		for (BOOST_AUTO(iter, object_can.begin()); iter != object_can.end();)
 			if (iter->second->obsoleted())
 			{
@@ -253,7 +253,7 @@ public:
 		{
 			unified_out::warning_out(ST_ASIO_SF " object(s) been kicked out!", size);
 
-			boost::lock_guard<boost::mutex> lock(invalid_object_can_mutex);
+			std::lock_guard lock(invalid_object_can_mutex);
 			invalid_object_can.splice(invalid_object_can.end(), objects);
 		}
 
@@ -270,7 +270,7 @@ public:
 	{
 		size_t num_affected = 0;
 
-		boost::unique_lock<boost::mutex> lock(invalid_object_can_mutex);
+		std::unique_lock lock(invalid_object_can_mutex);
 		for (BOOST_AUTO(iter, invalid_object_can.begin()); num > 0 && iter != invalid_object_can.end();)
 			//checking unique() is essential, consider following situation:
 			//{
@@ -300,17 +300,26 @@ public:
 	void list_all_status() {do_something_to_all(boost::bind(&Object::show_status, _1));}
 	void list_all_object() {do_something_to_all(boost::bind(&Object::show_info, _1, "", ""));}
 
-	template<typename _Predicate> void do_something_to_all(const _Predicate& __pred)
-		{boost::lock_guard<boost::mutex> lock(object_can_mutex); for (BOOST_AUTO(iter, object_can.begin()); iter != object_can.end(); ++iter) __pred(iter->second);}
+	template <typename _Predicate>
+	void do_something_to_all(const _Predicate& __pred)
+	{
+		std::lock_guard lock(object_can_mutex);
+		for (BOOST_AUTO(iter, object_can.begin()); iter != object_can.end(); ++iter) __pred(iter->second);
+	}
 
-	template<typename _Predicate> void do_something_to_one(const _Predicate& __pred)
-		{boost::lock_guard<boost::mutex> lock(object_can_mutex); for (BOOST_AUTO(iter, object_can.begin()); iter != object_can.end(); ++iter) if (__pred(iter->second)) break;}
+	template <typename _Predicate>
+	void do_something_to_one(const _Predicate& __pred)
+	{
+		std::lock_guard lock(object_can_mutex);
+		for (BOOST_AUTO(iter, object_can.begin()); iter != object_can.end(); ++iter)
+			if (__pred(iter->second)) break;
+	}
 
 private:
 	atomic_uint_fast64 cur_id;
 
 	container_type object_can;
-	boost::mutex object_can_mutex;
+	std::mutex object_can_mutex;
 	size_t max_size_;
 
 	//because all objects are dynamic created and stored in object_can, after receiving error occurred (you are recommended to delete the object from object_can,
@@ -319,7 +328,7 @@ private:
 	//from the heap or reuse them in the near future. if ST_ASIO_CLEAR_OBJECT_INTERVAL been defined, clear_obsoleted_object() will be invoked automatically and
 	//periodically to move all invalid objects into invalid_object_can.
 	boost::container::list<object_type> invalid_object_can;
-	boost::mutex invalid_object_can_mutex;
+	std::mutex invalid_object_can_mutex;
 };
 
 } //namespace

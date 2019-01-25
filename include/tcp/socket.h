@@ -298,7 +298,7 @@ private:
 			typename super::in_msg msg;
 			BOOST_AUTO(end_time, statistic::now());
 
-			typename super::in_queue_type::lock_guard lock(send_msg_buffer);
+			std::lock_guard lock(send_msg_buffer);
 			while (send_msg_buffer.try_dequeue_(msg))
 			{
 				stat.send_delay_sum += end_time - msg.begin_time;
