@@ -60,7 +60,7 @@ protected:
 		recv_idle_began = false;
 		msg_resuming_interval_ = ST_ASIO_MSG_RESUMING_INTERVAL;
 		msg_handling_interval_ = ST_ASIO_MSG_HANDLING_INTERVAL;
-		start_atomic.store(0, boost::memory_order_relaxed);
+		start_atomic.store(0, std::memory_order_relaxed);
 	}
 
 	void reset()

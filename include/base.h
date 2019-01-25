@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include <atomic>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -32,51 +33,15 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>
-#if BOOST_VERSION >= 105300
-#include <boost/atomic.hpp>
-#endif
 
 #include "config.h"
 
 namespace st_asio_wrapper
 {
 
-#if BOOST_VERSION >= 105300
-typedef boost::atomic_uint_fast64_t atomic_uint_fast64;
-typedef boost::atomic_size_t atomic_size_t;
-typedef boost::atomic_int_fast32_t atomic_int_fast32_t;
-#else
-template <typename T>
-class atomic
-{
-public:
-	atomic() : data(0) {}
-	atomic(T _data) : data(_data) {}
-
-	T operator++() {std::lock_guard lock(data_mutex); return ++data;}
-	//deliberately omitted operator++(int)
-	T operator+=(T value) {std::lock_guard lock(data_mutex); return data += value;}
-	T operator--() {std::lock_guard lock(data_mutex); return --data;}
-	//deliberately omitted operator--(int)
-	T operator-=(T value) {std::lock_guard lock(data_mutex); return data -= value;}
-	T operator=(T value) {std::lock_guard lock(data_mutex); return data = value;}
-	T exchange(T value, boost::memory_order) {std::lock_guard lock(data_mutex); T pre_data = data; data = value; return pre_data;}
-	T fetch_add(T value, boost::memory_order) {std::lock_guard lock(data_mutex); T pre_data = data; data += value; return pre_data;}
-	T fetch_sub(T value, boost::memory_order) {std::lock_guard lock(data_mutex); T pre_data = data; data -= value; return pre_data;}
-	void store(T value, boost::memory_order) {std::lock_guard lock(data_mutex); data = value;}
-	T load(boost::memory_order) const {return data;}
-
-	bool is_lock_free() const {return false;}
-	operator T() const {return data;}
-
-private:
-	T data;
-	std::mutex data_mutex;
-};
-typedef atomic<boost::uint_fast64_t> atomic_uint_fast64;
-typedef atomic<size_t> atomic_size_t;
-typedef atomic<boost::int_fast32_t> atomic_int_fast32_t;
-#endif
+typedef std::atomic_uint_fast64_t atomic_uint_fast64;
+typedef std::atomic_size_t atomic_size_t;
+typedef std::atomic_int_fast32_t atomic_int_fast32_t;
 
 template<typename atomic_type = atomic_size_t>
 class scope_atomic_lock : public boost::noncopyable
@@ -85,8 +50,8 @@ public:
 	scope_atomic_lock(atomic_type& atomic_) : _locked(false), atomic(atomic_) {lock();} //atomic_ must has been initialized with zero
 	~scope_atomic_lock() {unlock();}
 
-	void lock() {if (!_locked) _locked = 0 == atomic.exchange(1, boost::memory_order_acq_rel);}
-	void unlock() {if (_locked) atomic.store(0, boost::memory_order_release); _locked = false;}
+	void lock() {if (!_locked) _locked = 0 == atomic.exchange(1, std::memory_order_acq_rel);}
+	void unlock() {if (_locked) atomic.store(0, std::memory_order_release); _locked = false;}
 	bool locked() const {return _locked;}
 
 private:

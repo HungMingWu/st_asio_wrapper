@@ -86,7 +86,7 @@ protected:
 	{
 		if (object_ptr)
 		{
-			object_ptr->id(1 + cur_id.fetch_add(1, boost::memory_order_relaxed));
+			object_ptr->id(1 + cur_id.fetch_add(1, std::memory_order_relaxed));
 			on_create(object_ptr);
 		}
 		else
