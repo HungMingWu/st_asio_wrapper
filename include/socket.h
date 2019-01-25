@@ -44,7 +44,7 @@ protected:
 	void first_init()
 	{
 		_id = -1;
-		packer_ = boost::make_shared<Packer>();
+		packer_ = std::make_shared<Packer>();
 		sending = false;
 #ifdef ST_ASIO_PASSIVE_RECV
 		reading = false;
@@ -189,9 +189,9 @@ public:
 	//get or change the packer at runtime
 	//changing packer at runtime is not thread-safe (if we're sending messages concurrently), please pay special attention,
 	//we can resolve this defect via mutex, but i think it's not worth, because this feature is not frequently used
-	boost::shared_ptr<i_packer<typename Packer::msg_type> > packer() {return packer_;}
-	boost::shared_ptr<const i_packer<typename Packer::msg_type> > packer() const {return packer_;}
-	void packer(const boost::shared_ptr<i_packer<typename Packer::msg_type> >& _packer_) {packer_ = _packer_;}
+	std::shared_ptr<i_packer<typename Packer::msg_type> > packer() {return packer_;}
+	std::shared_ptr<const i_packer<typename Packer::msg_type> > packer() const {return packer_;}
+	void packer(const std::shared_ptr<i_packer<typename Packer::msg_type> >& _packer_) {packer_ = _packer_;}
 
 	//if you use can_overflow = true to invoke send_msg or send_native_msg, it will always succeed no matter the sending buffer is overflow or not,
 	//this can exhaust all virtual memory, please pay special attentions.
@@ -603,7 +603,7 @@ private:
 
 protected:
 	struct statistic stat;
-	boost::shared_ptr<i_packer<typename Packer::msg_type> > packer_;
+	std::shared_ptr<i_packer<typename Packer::msg_type> > packer_;
 	boost::container::list<OutMsgType> temp_msg_can;
 
 	in_queue_type send_msg_buffer;

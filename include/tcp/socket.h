@@ -38,7 +38,7 @@ protected:
 	template<typename Arg> socket_base(boost::asio::io_context& io_context_, Arg& arg) : super(io_context_, arg), strand(io_context_) {first_init();}
 
 	//helper function, just call it in constructor
-	void first_init() {status = BROKEN; unpacker_ = boost::make_shared<Unpacker>();}
+	void first_init() {status = BROKEN; unpacker_ = std::make_shared<Unpacker>();}
 
 public:
 	static const typename super::tid TIMER_BEGIN = super::TIMER_END;
@@ -112,11 +112,11 @@ public:
 	}
 
 	//get or change the unpacker at runtime
-	boost::shared_ptr<i_unpacker<out_msg_type> > unpacker() {return unpacker_;}
-	boost::shared_ptr<const i_unpacker<out_msg_type> > unpacker() const {return unpacker_;}
+	std::shared_ptr<i_unpacker<out_msg_type> > unpacker() {return unpacker_;}
+	std::shared_ptr<const i_unpacker<out_msg_type> > unpacker() const {return unpacker_;}
 #ifdef ST_ASIO_PASSIVE_RECV
 	//changing unpacker must before calling st_asio_wrapper::socket::recv_msg, and define ST_ASIO_PASSIVE_RECV macro.
-	void unpacker(const boost::shared_ptr<i_unpacker<out_msg_type> >& _unpacker_) {unpacker_ = _unpacker_;}
+	void unpacker(const std::shared_ptr<i_unpacker<out_msg_type> >& _unpacker_) {unpacker_ = _unpacker_;}
 	virtual void recv_msg() {if (!reading && is_ready()) ST_THIS dispatch_strand(strand, boost::bind(&socket_base::do_recv_msg, this));}
 #endif
 
@@ -392,7 +392,7 @@ private:
 	using super::reading;
 #endif
 
-	boost::shared_ptr<i_unpacker<out_msg_type> > unpacker_;
+	std::shared_ptr<i_unpacker<out_msg_type> > unpacker_;
 	boost::container::list<typename super::in_msg> last_send_msg;
 	boost::asio::io_context::strand strand;
 };

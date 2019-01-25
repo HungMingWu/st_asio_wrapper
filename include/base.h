@@ -28,7 +28,6 @@
 #include <boost/thread.hpp>
 #include <boost/version.hpp>
 #include <boost/date_time.hpp>
-#include <boost/smart_ptr.hpp>
 #include <boost/container/list.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
@@ -116,7 +115,7 @@ typedef auto_buffer<i_buffer> replaceable_buffer;
 template<typename T> class shared_buffer
 {
 public:
-	typedef boost::shared_ptr<T> buffer_type;
+	typedef std::shared_ptr<T> buffer_type;
 	typedef const buffer_type buffer_ctype;
 
 	shared_buffer() {}
@@ -381,9 +380,9 @@ template<typename T> struct obj_with_begin_time_promise : public obj_with_begin_
 	void swap(obj_with_begin_time_promise& other) {obj_with_begin_time<T>::swap(other); p.swap(other.p);}
 
 	void clear() {p.reset(); T::clear();}
-	void check_and_create_promise(bool need_promise) {if (!need_promise) p.reset(); else if (!p) p = boost::make_shared<boost::promise<sync_call_result> >();}
+	void check_and_create_promise(bool need_promise) {if (!need_promise) p.reset(); else if (!p) p = std::make_shared<boost::promise<sync_call_result> >();}
 
-	boost::shared_ptr<boost::promise<sync_call_result> > p;
+	std::shared_ptr<boost::promise<sync_call_result> > p;
 };
 #endif
 

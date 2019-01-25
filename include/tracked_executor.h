@@ -23,7 +23,7 @@ class tracked_executor
 {
 protected:
 	virtual ~tracked_executor() {}
-	tracked_executor(boost::asio::io_context& _io_context_) : io_context_(_io_context_), aci(boost::make_shared<char>('\0')) {}
+	tracked_executor(boost::asio::io_context& _io_context_) : io_context_(_io_context_), aci(std::make_shared<char>('\0')) {}
 
 public:
 	typedef boost::function<void(const boost::system::error_code&)> handler_with_error;
@@ -62,7 +62,7 @@ protected:
 	boost::asio::io_context& io_context_;
 
 private:
-	boost::shared_ptr<char> aci; //asynchronous calling indicator
+	std::shared_ptr<char> aci; //asynchronous calling indicator
 };
 #else
 class tracked_executor : public executor

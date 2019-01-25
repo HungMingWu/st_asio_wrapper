@@ -71,7 +71,7 @@ public:
 #if BOOST_ASIO_VERSION >= 101100
 		, work(get_executor())
 #else
-		, work(boost::make_shared<boost::asio::io_service::work>(boost::ref(*this)))
+		, work(std::make_shared<boost::asio::io_service::work>(boost::ref(*this)))
 #endif
 #endif
 	{}
@@ -320,7 +320,7 @@ private:
 #if BOOST_ASIO_VERSION >= 101100
 	boost::asio::executor_work_guard<executor_type> work;
 #else
-	boost::shared_ptr<boost::asio::io_service::work> work;
+	std::shared_ptr<boost::asio::io_service::work> work;
 #endif
 #endif
 };
