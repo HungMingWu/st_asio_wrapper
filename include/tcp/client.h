@@ -47,12 +47,12 @@ public:
 	using super::add_socket;
 	typename Pool::object_type add_socket()
 	{
-		BOOST_AUTO(socket_ptr, ST_THIS create_object());
+		auto socket_ptr = ST_THIS create_object();
 		return ST_THIS add_socket(socket_ptr, false) ? socket_ptr : typename Pool::object_type();
 	}
 	typename Pool::object_type add_socket(unsigned short port, const std::string& ip = ST_ASIO_SERVER_IP)
 	{
-		BOOST_AUTO(socket_ptr, ST_THIS create_object());
+		auto socket_ptr = ST_THIS create_object();
 		if (!socket_ptr)
 			return socket_ptr;
 
@@ -61,7 +61,7 @@ public:
 	}
 	typename Pool::object_type add_socket(unsigned short port, unsigned short local_port, const std::string& ip = ST_ASIO_SERVER_IP, const std::string& local_ip = std::string())
 	{
-		BOOST_AUTO(socket_ptr, ST_THIS create_object());
+		auto socket_ptr = ST_THIS create_object();
 		if (!socket_ptr)
 			return socket_ptr;
 

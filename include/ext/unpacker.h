@@ -73,7 +73,7 @@ public:
 	{
 		boost::container::list<std::pair<const char*, size_t> > msg_pos_can;
 		bool unpack_ok = parse_msg(bytes_transferred, msg_pos_can);
-		for (BOOST_AUTO(iter, msg_pos_can.begin()); iter != msg_pos_can.end(); ++iter)
+		for (auto iter = msg_pos_can.begin(); iter != msg_pos_can.end(); ++iter)
 		{
 			if (iter->second > 0) //exclude heartbeat
 				msg_can.emplace_back(iter->first, iter->second);
@@ -160,9 +160,9 @@ public:
 	{
 		unpacker::container_type tmp_can;
 		bool unpack_ok = unpacker_.parse_msg(bytes_transferred, tmp_can);
-		for (BOOST_AUTO(iter, tmp_can.begin()); iter != tmp_can.end(); ++iter)
+		for (auto iter = tmp_can.begin(); iter != tmp_can.end(); ++iter)
 		{
-			BOOST_AUTO(raw_msg, new string_buffer());
+			auto raw_msg = new string_buffer();
 			raw_msg->swap(*iter);
 			msg_can.emplace_back(raw_msg);
 		}
@@ -191,7 +191,7 @@ public:
 	{
 		assert(bytes_transferred <= ST_ASIO_MSG_BUFFER_SIZE);
 
-		BOOST_AUTO(raw_msg, new string_buffer());
+		auto raw_msg = new string_buffer();
 		raw_msg->assign(raw_buff.data(), bytes_transferred);
 		msg_can.emplace_back(raw_msg);
 		return true;

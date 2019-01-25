@@ -84,7 +84,7 @@ public:
 		timer_info* ti = NULL;
 		{
 			std::lock_guard lock(timer_can_mutex);
-			BOOST_AUTO(iter, std::find(timer_can.begin(), timer_can.end(), id));
+			auto iter = std::find(timer_can.begin(), timer_can.end(), id);
 			if (iter == timer_can.end())
 			{
 				try {timer_can.emplace_back(id, boost::ref(io_context_)); ti = &timer_can.back();}
@@ -104,14 +104,31 @@ public:
 		return true;
 	}
 	bool create_or_update_timer(tid id, unsigned interval, const boost::function<bool (tid)>& call_back, bool start = false)
-		{BOOST_AUTO(unused, call_back); return create_or_update_timer(id, interval, unused, start);}
+	{
+		auto unused = call_back;
+		return create_or_update_timer(id, interval, unused, start);
+	}
 
-	bool change_timer_status(tid id, typename timer_info::timer_status status) {BOOST_AUTO(ti, find_timer(id)); return NULL != ti ? ti->status = status, true : false;}
-	bool change_timer_interval(tid id, size_t interval) {BOOST_AUTO(ti, find_timer(id)); return NULL != ti ? ti->interval_ms = interval, true : false;}
+	bool change_timer_status(tid id, typename timer_info::timer_status status) 
+	{
+		auto ti = find_timer(id);
+		return NULL != ti ? ti->status = status, true : false;
+	}
+	bool change_timer_interval(tid id, size_t interval) 
+	{
+		auto ti = find_timer(id);
+		return NULL != ti ? ti->interval_ms = interval, true : false;
+	}
 
 	//after this call, call_back cannot be used again, please note.
-	bool change_timer_call_back(tid id, boost::function<bool(tid)>& call_back) {BOOST_AUTO(ti, find_timer(id)); return NULL != ti ? ti->call_back.swap(call_back), true : false;}
-	bool change_timer_call_back(tid id, const boost::function<bool(tid)>& call_back) {BOOST_AUTO(unused, call_back); return change_timer_call_back(id, unused);}
+	bool change_timer_call_back(tid id, boost::function<bool(tid)>& call_back) {
+		auto ti =  find_timer(id);
+		return NULL != ti ? ti->call_back.swap(call_back), true : false;
+	}
+	bool change_timer_call_back(tid id, const boost::function<bool(tid)>& call_back) {
+		auto unused = call_back;
+		return change_timer_call_back(id, unused);
+	}
 
 	//after this call, call_back cannot be used again, please note.
 	bool set_timer(tid id, unsigned interval, boost::function<bool(tid)>& call_back) {return create_or_update_timer(id, interval, call_back, true);}
@@ -120,16 +137,25 @@ public:
 	timer_info* find_timer(tid id)
 	{
 		std::lock_guard lock(timer_can_mutex);
-		BOOST_AUTO(iter, std::find(timer_can.begin(), timer_can.end(), id));
+		auto iter =  std::find(timer_can.begin(), timer_can.end(), id);
 		if (iter != timer_can.end())
 			return &*iter;
 
 		return NULL;
 	}
 
-	bool is_timer(tid id) {BOOST_AUTO(ti, find_timer(id)); return NULL != ti ? timer_info::TIMER_STARTED == ti->status : false;}
-	bool start_timer(tid id) {BOOST_AUTO(ti, find_timer(id)); return NULL != ti ? start_timer(*ti) : false;}
-	void stop_timer(tid id) {BOOST_AUTO(ti, find_timer(id)); if (NULL != ti) stop_timer(*ti);}
+	bool is_timer(tid id) {
+		auto ti = find_timer(id);
+		return NULL != ti ? timer_info::TIMER_STARTED == ti->status : false;
+	}
+	bool start_timer(tid id) {
+		auto ti = find_timer(id);
+		return NULL != ti ? start_timer(*ti) : false;
+	}
+	void stop_timer(tid id) {
+		auto ti = find_timer(id);
+		if (NULL != ti) stop_timer(*ti);
+	}
 	void stop_all_timer() {do_something_to_all(boost::bind((void (timer::*) (timer_info&)) &timer::stop_timer, this, _1));}
 	void stop_all_timer(tid excepted_id)
 	{
@@ -172,7 +198,7 @@ protected:
 	void timer_handler(const boost::system::error_code& ec, timer_info& ti, unsigned char prev_seq)
 	{
 #ifdef ST_ASIO_ALIGNED_TIMER
-		BOOST_AUTO(begin_time, boost::chrono::system_clock::now());
+		auto begin_time = boost::chrono::system_clock::now();
 		if (!ec && ti.call_back(ti.id) && timer_info::TIMER_STARTED == ti.status)
 		{
 			unsigned elapsed_ms = (unsigned) boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::system_clock::now() - begin_time).count();

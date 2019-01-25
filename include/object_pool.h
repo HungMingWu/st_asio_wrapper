@@ -103,7 +103,7 @@ protected:
 	{
 		assert(object_ptr && !object_ptr->is_equal_to(-1));
 
-		BOOST_AUTO(old_object_ptr, invalid_object_pop(id));
+		auto old_object_ptr = invalid_object_pop(id);
 		if (old_object_ptr)
 		{
 			assert(!find(id));
@@ -118,14 +118,14 @@ protected:
 	}
 
 #define CREATE_OBJECT_1_ARG(first_way) \
-BOOST_AUTO(object_ptr, first_way()); \
+auto object_ptr = first_way(); \
 if (!object_ptr) \
 	try {object_ptr = boost::make_shared<Object>(arg);} catch (const std::exception& e) {unified_out::error_out("cannot create object (%s)", e.what());} \
 init_object(object_ptr); \
 return object_ptr;
 
 #define CREATE_OBJECT_2_ARG(first_way) \
-BOOST_AUTO(object_ptr, first_way()); \
+auto object_ptr =  first_way(); \
 if (!object_ptr) \
 	try {object_ptr = boost::make_shared<Object>(arg1, arg2);} catch (const std::exception& e) {unified_out::error_out("cannot create object (%s)", e.what());} \
 init_object(object_ptr); \
@@ -134,7 +134,7 @@ return object_ptr;
 #if defined(ST_ASIO_REUSE_OBJECT) && !defined(ST_ASIO_RESTORE_OBJECT)
 	object_type reuse_object()
 	{
-		BOOST_AUTO(object_ptr, invalid_object_pop());
+		auto object_ptr = invalid_object_pop();
 		if (object_ptr)
 			object_ptr->reset();
 
@@ -166,7 +166,7 @@ public:
 	object_type find(boost::uint_fast64_t id)
 	{
 		std::lock_guard lock(object_can_mutex);
-		BOOST_AUTO(iter, object_can.find(id));
+		auto iter = object_can.find(id);
 		return iter != object_can.end() ? iter->second : object_type();
 	}
 
@@ -188,7 +188,7 @@ public:
 	object_type invalid_object_find(boost::uint_fast64_t id)
 	{
 		std::lock_guard lock(invalid_object_can_mutex);
-		BOOST_AUTO(iter, std::find_if(invalid_object_can.begin(), invalid_object_can.end(), boost::bind(&Object::is_equal_to, _1, id)));
+		auto iter = std::find_if(invalid_object_can.begin(), invalid_object_can.end(), boost::bind(&Object::is_equal_to, _1, id));
 		return iter == invalid_object_can.end() ? object_type() : *iter;
 	}
 
@@ -204,10 +204,10 @@ public:
 	object_type invalid_object_pop(boost::uint_fast64_t id)
 	{
 		std::lock_guard lock(invalid_object_can_mutex);
-		BOOST_AUTO(iter, std::find_if(invalid_object_can.begin(), invalid_object_can.end(), boost::bind(&Object::is_equal_to, _1, id)));
+		auto iter = std::find_if(invalid_object_can.begin(), invalid_object_can.end(), boost::bind(&Object::is_equal_to, _1, id));
 		if (iter != invalid_object_can.end() && (*iter).unique() && (*iter)->obsoleted())
 		{
-			BOOST_AUTO(object_ptr, *iter);
+			auto object_ptr = *iter;
 			invalid_object_can.erase(iter);
 			return object_ptr;
 		}
@@ -218,10 +218,10 @@ public:
 	object_type invalid_object_pop()
 	{
 		std::lock_guard lock(invalid_object_can_mutex);
-		for (BOOST_AUTO(iter, invalid_object_can.begin()); iter != invalid_object_can.end(); ++iter)
+		for (auto iter = invalid_object_can.begin(); iter != invalid_object_can.end(); ++iter)
 			if ((*iter).unique() && (*iter)->obsoleted())
 			{
-				BOOST_AUTO(object_ptr, *iter);
+				auto object_ptr = *iter;
 				invalid_object_can.erase(iter);
 				return object_ptr;
 			}
@@ -235,10 +235,10 @@ public:
 	//object_pool will automatically invoke this function if ST_ASIO_CLEAR_OBJECT_INTERVAL been defined
 	size_t clear_obsoleted_object()
 	{
-		BOOST_TYPEOF(invalid_object_can) objects;
+		decltype(invalid_object_can) objects;
 
 		std::unique_lock lock(object_can_mutex);
-		for (BOOST_AUTO(iter, object_can.begin()); iter != object_can.end();)
+		for (auto iter = object_can.begin(); iter != object_can.end();)
 			if (iter->second->obsoleted())
 			{
 				try {objects.emplace_back(iter->second);} catch (const std::exception& e) {unified_out::error_out("cannot hold more objects (%s)", e.what());}
@@ -271,10 +271,10 @@ public:
 		size_t num_affected = 0;
 
 		std::unique_lock lock(invalid_object_can_mutex);
-		for (BOOST_AUTO(iter, invalid_object_can.begin()); num > 0 && iter != invalid_object_can.end();)
+		for (auto iter = invalid_object_can.begin(); num > 0 && iter != invalid_object_can.end();)
 			//checking unique() is essential, consider following situation:
 			//{
-			//	BOOST_AUTO(socket_ptr, server.find(id));
+			//	auto socket_ptr = server.find(id);
 			//	//between these two sentences, the socket_ptr can be shut down and moved from object_can to invalid_object_can, then removed from invalid_object_can
 			//	//in this function without unique() checking.
 			//	socket_ptr->set_timer(...);
@@ -304,14 +304,14 @@ public:
 	void do_something_to_all(const _Predicate& __pred)
 	{
 		std::lock_guard lock(object_can_mutex);
-		for (BOOST_AUTO(iter, object_can.begin()); iter != object_can.end(); ++iter) __pred(iter->second);
+		for (auto iter = object_can.begin(); iter != object_can.end(); ++iter) __pred(iter->second);
 	}
 
 	template <typename _Predicate>
 	void do_something_to_one(const _Predicate& __pred)
 	{
 		std::lock_guard lock(object_can_mutex);
-		for (BOOST_AUTO(iter, object_can.begin()); iter != object_can.end(); ++iter)
+		for (auto iter = object_can.begin(); iter != object_can.end(); ++iter)
 			if (__pred(iter->second)) break;
 	}
 

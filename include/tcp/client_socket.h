@@ -82,7 +82,7 @@ protected:
 	{
 		assert(!ST_THIS is_connected());
 
-		BOOST_AUTO(&lowest_object, ST_THIS lowest_layer());
+		auto &lowest_object = ST_THIS lowest_layer();
 		if (0 != local_addr.port() || !local_addr.address().is_unspecified())
 		{
 			boost::system::error_code ec;
@@ -175,9 +175,9 @@ private:
 		{
 			boost::system::error_code ec;
 #if BOOST_ASIO_VERSION >= 101100
-			BOOST_AUTO(addr, boost::asio::ip::make_address(ip, ec)); assert(!ec);
+			auto addr = boost::asio::ip::make_address(ip, ec); assert(!ec);
 #else
-			BOOST_AUTO(addr, boost::asio::ip::address::from_string(ip, ec)); assert(!ec);
+			auto addr = boost::asio::ip::address::from_string(ip, ec); assert(!ec);
 #endif
 			if (ec)
 			{

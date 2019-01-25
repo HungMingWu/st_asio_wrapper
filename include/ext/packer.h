@@ -113,7 +113,7 @@ public:
 		packer::msg_type str;
 		if (packer().pack_msg(str, pstr, len, num, native))
 		{
-			BOOST_AUTO(raw_msg, new string_buffer());
+			auto raw_msg = new string_buffer();
 			raw_msg->swap(str);
 			msg.raw_buffer(raw_msg);
 
@@ -127,7 +127,7 @@ public:
 		packer::msg_type str;
 		if (packer().pack_heartbeat(str))
 		{
-			BOOST_AUTO(raw_msg, new string_buffer());
+			auto raw_msg = new string_buffer();
 			raw_msg->swap(str);
 			msg.raw_buffer(raw_msg);
 

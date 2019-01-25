@@ -33,9 +33,9 @@ public:
 		{
 			boost::system::error_code ec;
 #if BOOST_ASIO_VERSION >= 101100
-			BOOST_AUTO(addr, boost::asio::ip::make_address(ip, ec));
+			auto addr = boost::asio::ip::make_address(ip, ec);
 #else
-			BOOST_AUTO(addr, boost::asio::ip::address::from_string(ip, ec));
+			auto addr = boost::asio::ip::address::from_string(ip, ec);
 #endif
 			if (ec)
 				return false;
@@ -58,7 +58,7 @@ public:
 	virtual const service_pump& get_service_pump() const {return Pool::get_service_pump();}
 	virtual bool del_socket(const boost::shared_ptr<tracked_executor>& socket_ptr)
 	{
-		BOOST_AUTO(raw_socket_ptr, boost::dynamic_pointer_cast<Socket>(socket_ptr));
+		auto raw_socket_ptr = boost::dynamic_pointer_cast<Socket>(socket_ptr);
 		if (!raw_socket_ptr)
 			return false;
 
@@ -70,12 +70,12 @@ public:
 	//hand, restore socket::next_layer_ doesn't make any sense).
 	virtual bool restore_socket(const boost::shared_ptr<tracked_executor>& socket_ptr, boost::uint_fast64_t id)
 	{
-		BOOST_AUTO(raw_socket_ptr, boost::dynamic_pointer_cast<Socket>(socket_ptr));
+		auto raw_socket_ptr = boost::dynamic_pointer_cast<Socket>(socket_ptr);
 		if (!raw_socket_ptr)
 			return false;
 
-		BOOST_AUTO(this_id, raw_socket_ptr->id());
-		BOOST_AUTO(old_socket_ptr, ST_THIS change_object_id(raw_socket_ptr, id));
+		auto this_id = raw_socket_ptr->id();
+		auto old_socket_ptr = ST_THIS change_object_id(raw_socket_ptr, id);
 		if (old_socket_ptr)
 		{
 			assert(raw_socket_ptr->id() == old_socket_ptr->id());
@@ -130,7 +130,7 @@ protected:
 		unified_out::info_out("begin to pre-create %d server socket...", num);
 		while (--num >= 0)
 		{
-			BOOST_AUTO(socket_ptr, ST_THIS create_object(boost::ref(*this)));
+			auto socket_ptr = ST_THIS create_object(boost::ref(*this));
 			if (!socket_ptr)
 				break;
 

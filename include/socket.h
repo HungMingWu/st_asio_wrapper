@@ -230,7 +230,7 @@ public:
 		recv_msg();
 #endif
 		sr_status = REQUESTED;
-		BOOST_AUTO(re, sync_recv_waiting(lock, duration));
+		auto re = sync_recv_waiting(lock, duration);
 		if (SUCCESS == re)
 			msg_can.splice(msg_can.end(), temp_msg_can);
 
@@ -286,9 +286,9 @@ protected:
 	virtual size_t on_msg(boost::container::list<OutMsgType>& msg_can)
 	{
 		//it's always thread safe in this virtual function, because it blocks message receiving
-		for (BOOST_AUTO(iter, msg_can.begin()); iter != msg_can.end(); ++iter)
+		for (auto iter = msg_can.begin(); iter != msg_can.end(); ++iter)
 			unified_out::debug_out("recv(" ST_ASIO_SF "): %s", iter->size(), iter->data());
-		BOOST_AUTO(re, msg_can.size());
+		auto re = msg_can.size();
 		msg_can.clear(); //have handled all messages
 
 		return re;
@@ -302,7 +302,7 @@ protected:
 		out_container_type tmp_can;
 		msg_can.swap(tmp_can); //must be thread safe
 
-		for (BOOST_AUTO(iter, tmp_can.begin()); iter != tmp_can.end(); ++iter)
+		for (auto iter = tmp_can.begin(); iter != tmp_can.end(); ++iter)
 			unified_out::debug_out("recv(" ST_ASIO_SF "): %s", iter->size(), iter->data());
 
 		return tmp_can.size();
@@ -401,8 +401,8 @@ protected:
 		if (msg_num > 0)
 		{
 			boost::container::list<out_msg> temp_buffer(msg_num);
-			BOOST_AUTO(op_iter, temp_buffer.begin());
-			for (BOOST_AUTO(iter, temp_msg_can.begin()); iter != temp_msg_can.end(); ++op_iter, ++iter)
+			auto op_iter = temp_buffer.begin();
+			for (auto iter =  temp_msg_can.begin(); iter != temp_msg_can.end(); ++op_iter, ++iter)
 			{
 				stat.recv_byte_sum += iter->size();
 				op_iter->swap(*iter);
@@ -472,7 +472,6 @@ private:
 #ifdef ST_ASIO_SYNC_RECV
 	sync_call_result sync_recv_waiting(std::unique_lock<std::mutex>& lock, unsigned duration)
 	{
-		//BOOST_AUTO cannot deduce the return type from lambda expressions in Clang
 		boost::function<bool ()> pred = boost::lambda::if_then_else_return(!boost::lambda::var(started_) || REQUESTED != boost::lambda::var(sr_status), true, false);
 		if (0 == duration)
 			sync_recv_cv.wait(lock, pred);
@@ -525,15 +524,15 @@ private:
 #ifdef ST_ASIO_DISPATCH_BATCH_MSG
 		if ((dispatching = !recv_msg_buffer.empty()))
 		{
-			BOOST_AUTO(begin_time, statistic::now());
+			auto begin_time = statistic::now();
 #ifdef ST_ASIO_FULL_STATISTIC
 			recv_msg_buffer.lock();
-			for (BOOST_AUTO(iter, recv_msg_buffer.begin()); iter != recv_msg_buffer.end(); ++iter)
+			for (auto iter = recv_msg_buffer.begin(); iter != recv_msg_buffer.end(); ++iter)
 				stat.dispatch_dealy_sum += begin_time - iter->begin_time;
 			recv_msg_buffer.unlock();
 #endif
 			size_t re = on_msg_handle(recv_msg_buffer);
-			BOOST_AUTO(end_time, statistic::now());
+			auto end_time =  statistic::now();
 			stat.handle_time_sum += end_time - begin_time;
 
 			if (0 == re) //dispatch failed, re-dispatch
@@ -550,10 +549,10 @@ private:
 #else
 		if ((dispatching = !dispatched || recv_msg_buffer.try_dequeue(last_dispatch_msg)))
 		{
-			BOOST_AUTO(begin_time, statistic::now());
+			auto begin_time = statistic::now();
 			stat.dispatch_dealy_sum += begin_time - last_dispatch_msg.begin_time;
 			bool re = on_msg_handle(last_dispatch_msg); //must before next msg dispatching to keep sequence
-			BOOST_AUTO(end_time, statistic::now());
+			auto end_time = statistic::now();
 			stat.handle_time_sum += end_time - begin_time;
 
 			if (!re) //dispatch failed, re-dispatch

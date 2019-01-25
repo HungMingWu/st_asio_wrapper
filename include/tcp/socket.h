@@ -67,10 +67,10 @@ public:
 	void show_info(const char* head, const char* tail) const
 	{
 		boost::system::error_code ec;
-		BOOST_AUTO(local_ep, ST_THIS lowest_layer().local_endpoint(ec));
+		auto local_ep = ST_THIS lowest_layer().local_endpoint(ec);
 		if (!ec)
 		{
-			BOOST_AUTO(remote_ep, ST_THIS lowest_layer().remote_endpoint(ec));
+			auto remote_ep = ST_THIS lowest_layer().remote_endpoint(ec);
 			if (!ec)
 				unified_out::info_out("%s (%s:%hu %s:%hu) %s", head,
 					local_ep.address().to_string().data(), local_ep.port(),
@@ -81,10 +81,10 @@ public:
 	void show_info(const char* head, const char* tail, const boost::system::error_code& ec) const
 	{
 		boost::system::error_code ec2;
-		BOOST_AUTO(local_ep, ST_THIS lowest_layer().local_endpoint(ec2));
+		auto local_ep = ST_THIS lowest_layer().local_endpoint(ec2);
 		if (!ec2)
 		{
-			BOOST_AUTO(remote_ep, ST_THIS lowest_layer().remote_endpoint(ec2));
+			auto remote_ep = ST_THIS lowest_layer().remote_endpoint(ec2);
 			if (!ec2)
 				unified_out::info_out("%s (%s:%hu %s:%hu) %s (%d %s)", head,
 					local_ep.address().to_string().data(), local_ep.port(),
@@ -190,7 +190,7 @@ protected:
 	virtual void on_close()
 	{
 #ifdef ST_ASIO_SYNC_SEND
-		for (BOOST_AUTO(iter, last_send_msg.begin()); iter != last_send_msg.end(); ++iter)
+		for (auto iter = last_send_msg.begin(); iter != last_send_msg.end(); ++iter)
 			if (iter->p)
 				iter->p->set_value(NOT_APPLICABLE);
 #endif
@@ -236,7 +236,7 @@ private:
 		if (reading)
 			return;
 #endif
-		BOOST_AUTO(recv_buff, unpacker_->prepare_next_recv());
+		auto recv_buff = unpacker_->prepare_next_recv();
 		assert(boost::asio::buffer_size(recv_buff) > 0);
 		if (0 == boost::asio::buffer_size(recv_buff))
 			unified_out::error_out("The unpacker returned an empty buffer, quit receiving!");
@@ -296,7 +296,7 @@ private:
 #endif
 			size_t size = 0;
 			typename super::in_msg msg;
-			BOOST_AUTO(end_time, statistic::now());
+			auto end_time = statistic::now();
 
 			std::lock_guard lock(send_msg_buffer);
 			while (send_msg_buffer.try_dequeue_(msg))
@@ -332,7 +332,7 @@ private:
 			stat.send_time_sum += statistic::now() - last_send_msg.front().begin_time;
 			stat.send_msg_sum += last_send_msg.size();
 #ifdef ST_ASIO_SYNC_SEND
-			for (BOOST_AUTO(iter, last_send_msg.begin()); iter != last_send_msg.end(); ++iter)
+			for (auto iter = last_send_msg.begin(); iter != last_send_msg.end(); ++iter)
 				if (iter->p)
 					iter->p->set_value(SUCCESS);
 #endif

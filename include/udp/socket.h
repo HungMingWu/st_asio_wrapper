@@ -118,7 +118,7 @@ public:
 protected:
 	virtual bool do_start()
 	{
-		BOOST_AUTO(&lowest_object, ST_THIS lowest_layer());
+		auto &lowest_object = ST_THIS lowest_layer();
 		if (!lowest_object.is_open()) //user maybe has opened this socket (to set options for example)
 		{
 			boost::system::error_code ec;
@@ -189,7 +189,7 @@ private:
 		ST_THIS stop_all_timer();
 		close();
 
-		BOOST_AUTO(&lowest_object, ST_THIS lowest_layer());
+		auto &lowest_object = ST_THIS lowest_layer();
 		if (lowest_object.is_open())
 		{
 			boost::system::error_code ec;
@@ -204,7 +204,7 @@ private:
 		if (reading)
 			return;
 #endif
-		BOOST_AUTO(recv_buff, unpacker_->prepare_next_recv());
+		auto recv_buff = unpacker_->prepare_next_recv();
 		assert(boost::asio::buffer_size(recv_buff) > 0);
 		if (0 == boost::asio::buffer_size(recv_buff))
 			unified_out::error_out("The unpacker returned an empty buffer, quit receiving!");
@@ -230,7 +230,7 @@ private:
 #ifdef ST_ASIO_PASSIVE_RECV
 			reading = false; //clear reading flag before call handle_msg() to make sure that recv_msg() can be called successfully in on_msg_handle()
 #endif
-			for (BOOST_AUTO(iter, msg_can.begin()); iter != msg_can.end(); ++iter)
+			for (auto iter = msg_can.begin(); iter != msg_can.end(); ++iter)
 				temp_msg_can.emplace_back(temp_addr, boost::ref(*iter));
 			if (handle_msg()) //if macro ST_ASIO_PASSIVE_RECV been defined, handle_msg will always return false
 				do_recv_msg(); //receive msg in sequence
@@ -312,9 +312,9 @@ private:
 		{
 			boost::system::error_code ec;
 #if BOOST_ASIO_VERSION >= 101100
-			BOOST_AUTO(addr, boost::asio::ip::make_address(ip, ec)); assert(!ec);
+			auto addr = boost::asio::ip::make_address(ip, ec); assert(!ec);
 #else
-			BOOST_AUTO(addr, boost::asio::ip::address::from_string(ip, ec)); assert(!ec);
+			auto addr = boost::asio::ip::address::from_string(ip, ec); assert(!ec);
 #endif
 			if (ec)
 			{
