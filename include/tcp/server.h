@@ -56,9 +56,9 @@ public:
 	//implement i_server's pure virtual functions
 	virtual service_pump& get_service_pump() {return Pool::get_service_pump();}
 	virtual const service_pump& get_service_pump() const {return Pool::get_service_pump();}
-	virtual bool del_socket(const boost::shared_ptr<tracked_executor>& socket_ptr)
+	bool del_socket(const std::shared_ptr<tracked_executor>& socket_ptr) override
 	{
-		auto raw_socket_ptr = boost::dynamic_pointer_cast<Socket>(socket_ptr);
+		auto raw_socket_ptr = std::dynamic_pointer_cast<Socket>(socket_ptr);
 		if (!raw_socket_ptr)
 			return false;
 
@@ -68,9 +68,9 @@ public:
 	//restore the invalid socket whose id is equal to id, if successful, socket_ptr's take_over function will be invoked,
 	//you can restore the invalid socket to socket_ptr, everything can be restored except socket::next_layer_ (on the other
 	//hand, restore socket::next_layer_ doesn't make any sense).
-	virtual bool restore_socket(const boost::shared_ptr<tracked_executor>& socket_ptr, boost::uint_fast64_t id)
+	bool restore_socket(const std::shared_ptr<tracked_executor>& socket_ptr, boost::uint_fast64_t id) override
 	{
-		auto raw_socket_ptr = boost::dynamic_pointer_cast<Socket>(socket_ptr);
+		auto raw_socket_ptr = std::dynamic_pointer_cast<Socket>(socket_ptr);
 		if (!raw_socket_ptr)
 			return false;
 
@@ -88,7 +88,10 @@ public:
 
 		return false;
 	}
-	virtual boost::shared_ptr<tracked_executor> find_socket(boost::uint_fast64_t id) {return ST_THIS find(id);}
+	std::shared_ptr<tracked_executor> find_socket(boost::uint_fast64_t id) override
+	{
+		return ST_THIS find(id);
+	}
 
 	///////////////////////////////////////////////////
 	//msg sending interface

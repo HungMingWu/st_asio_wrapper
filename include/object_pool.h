@@ -27,7 +27,7 @@ template<typename Object>
 class object_pool : public service_pump::i_service, protected timer<executor>
 {
 public:
-	typedef boost::shared_ptr<Object> object_type;
+	typedef std::shared_ptr<Object> object_type;
 	typedef const object_type object_ctype;
 	typedef boost::unordered::unordered_map<boost::uint_fast64_t, object_type> container_type;
 
@@ -120,14 +120,14 @@ protected:
 #define CREATE_OBJECT_1_ARG(first_way) \
 auto object_ptr = first_way(); \
 if (!object_ptr) \
-	try {object_ptr = boost::make_shared<Object>(arg);} catch (const std::exception& e) {unified_out::error_out("cannot create object (%s)", e.what());} \
+	try {object_ptr = std::make_shared<Object>(arg);} catch (const std::exception& e) {unified_out::error_out("cannot create object (%s)", e.what());} \
 init_object(object_ptr); \
 return object_ptr;
 
 #define CREATE_OBJECT_2_ARG(first_way) \
 auto object_ptr =  first_way(); \
 if (!object_ptr) \
-	try {object_ptr = boost::make_shared<Object>(arg1, arg2);} catch (const std::exception& e) {unified_out::error_out("cannot create object (%s)", e.what());} \
+	try {object_ptr = std::make_shared<Object>(arg1, arg2);} catch (const std::exception& e) {unified_out::error_out("cannot create object (%s)", e.what());} \
 init_object(object_ptr); \
 return object_ptr;
 

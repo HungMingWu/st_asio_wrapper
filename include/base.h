@@ -68,9 +68,9 @@ namespace tcp
 	public:
 		virtual service_pump& get_service_pump() = 0;
 		virtual const service_pump& get_service_pump() const = 0;
-		virtual bool del_socket(const boost::shared_ptr<tracked_executor>& socket_ptr) = 0;
-		virtual bool restore_socket(const boost::shared_ptr<tracked_executor>& socket_ptr, boost::uint_fast64_t id) = 0;
-		virtual boost::shared_ptr<tracked_executor> find_socket(boost::uint_fast64_t id) = 0;
+		virtual bool del_socket(const std::shared_ptr<tracked_executor>& socket_ptr) = 0;
+		virtual bool restore_socket(const std::shared_ptr<tracked_executor>& socket_ptr, boost::uint_fast64_t id) = 0;
+		virtual std::shared_ptr<tracked_executor> find_socket(boost::uint_fast64_t id) = 0;
 	};
 } //namespace
 
